@@ -1,0 +1,138 @@
+import React from 'react';
+import { CareerPath } from '../types';
+import { careerPaths } from '../data/careers';
+import { companyHiringData, marketInsights } from '../data/industryData';
+import { ChevronRight, TrendingUp, DollarSign } from 'lucide-react';
+
+interface CareerSelectorProps {
+  onSelectCareer: (career: CareerPath) => void;
+  selectedCareer?: CareerPath;
+}
+
+const CareerSelector: React.FC<CareerSelectorProps> = ({ onSelectCareer, selectedCareer }) => {
+  const [hoveredCareer, setHoveredCareer] = React.useState<string | null>(null);
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">Choose Your Career Path</h2>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          Select a career path to begin your personalized assessment and receive tailored learning recommendations
+          powered by advanced AI analysis.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {careerPaths.map((career) => (
+          <div
+            key={career.id}
+            className={`bg-white rounded-xl shadow-lg border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer group ${
+              selectedCareer?.id === career.id
+                ? 'border-blue-500 ring-4 ring-blue-500/20'
+                : 'border-gray-200 hover:border-blue-300'
+            }`}
+            onClick={() => onSelectCareer(career)}
+            onMouseEnter={() => setHoveredCareer(career.id)}
+            onMouseLeave={() => setHoveredCareer(null)}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-4xl">{career.icon}</div>
+                <span className="text-sm bg-gradient-to-r from-purple-500 to-blue-500 text-white px-3 py-1 rounded-full">
+                  {career.category}
+                </span>
+              </div>
+              
+              <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                {career.title}
+              </h3>
+              
+              <p className="text-gray-600 mb-4 text-sm leading-relaxed">
+                {career.description}
+              </p>
+
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center space-x-2 text-sm">
+                  <DollarSign className="h-4 w-4 text-green-600" />
+                  <span className="text-gray-700">{career.averageSalary}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm">
+                  <TrendingUp className="h-4 w-4 text-blue-600" />
+                  <span className="text-gray-700">{career.growthRate} growth rate</span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Key Skills:</p>
+                <div className="flex flex-wrap gap-1">
+                  {career.skills.slice(0, 4).map((skill, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-md"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                  {career.skills.length > 4 && (
+                    <span className="text-xs text-gray-500 px-2 py-1">
+                      +{career.skills.length - 4} more
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2">
+                  <span>Start Assessment</span>
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+                
+                {/* Market Info on Hover */}
+                {hoveredCareer === career.id && marketInsights[career.id] && (
+                  <div className="text-xs text-gray-600">
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-2 py-1 rounded-full ${
+                        marketInsights[career.id].competitionLevel === 'Low' ? 'bg-green-100 text-green-700' :
+                        marketInsights[career.id].competitionLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                        marketInsights[career.id].competitionLevel === 'High' ? 'bg-orange-100 text-orange-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {marketInsights[career.id].competitionLevel} Competition
+                      </span>
+                    </div>
+                    <div className="mt-1">
+                      {marketInsights[career.id].totalJobs.toLocaleString()} jobs available
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Tooltip with detailed info */}
+              {hoveredCareer === career.id && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-black text-white text-xs rounded-lg p-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span>Market Demand:</span>
+                      <span className="font-medium">{marketInsights[career.id]?.demandTrend || 'Growing'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Companies Hiring:</span>
+                      <span className="font-medium">{companyHiringData[career.id]?.length || 0}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Industry Growth:</span>
+                      <span className="font-medium">{marketInsights[career.id]?.industryGrowth || 'N/A'}</span>
+                    </div>
+                  </div>
+                  <div className="absolute -top-1 left-4 w-2 h-2 bg-black transform rotate-45"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default CareerSelector;
