@@ -1,5 +1,6 @@
 import React from 'react';
 import { CareerPath, SkillGap, LearningResource } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 import { learningResources } from '../data/resources';
 import { companyHiringData, marketInsights } from '../data/industryData';
 import MarketInsights from './MarketInsights';
@@ -12,6 +13,8 @@ interface ResultsProps {
 }
 
 const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => {
+  const { isDarkMode } = useTheme();
+
   // Calculate skill levels and gaps
   const calculateSkillGaps = (): SkillGap[] => {
     const gaps: SkillGap[] = [];
@@ -86,8 +89,10 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">Assessment Results</h2>
-        <p className="text-xl text-gray-600">
+        <h2 className={`text-4xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          Assessment Results
+        </h2>
+        <p className={`text-xl ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
           Your personalized learning path for {career.title}
         </p>
       </div>
@@ -139,13 +144,17 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Skill Analysis */}
-        <div className="liquid-card bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">Skill Analysis</h3>
+        <div className={`liquid-card rounded-xl shadow-lg p-6 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
+          <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Skill Analysis
+          </h3>
           <div className="space-y-4">
             {skillGaps.map((gap, index) => (
               <div key={index} className="liquid-card border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-gray-900">{gap.skill}</h4>
+                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {gap.skill}
+                  </h4>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                     gap.priority === 'high' ? 'bg-red-100 text-red-800' :
                     gap.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
@@ -156,7 +165,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
                 </div>
                 
                 <div className="mb-2">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <div className={`flex justify-between text-sm mb-1 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
                     <span>Current Level: {gap.currentLevel}/5</span>
                     <span>Target: {gap.requiredLevel}/5</span>
                   </div>
@@ -171,7 +180,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
                 </div>
 
                 {gap.gap > 0 && (
-                  <p className="text-sm text-gray-600">
+                  <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
                     Recommended improvement: {gap.gap} level{gap.gap > 1 ? 's' : ''}
                   </p>
                 )}
@@ -181,15 +190,21 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
         </div>
 
         {/* Learning Recommendations */}
-        <div className="liquid-card bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">Recommended Learning Resources</h3>
+        <div className={`liquid-card rounded-xl shadow-lg p-6 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
+          <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            Recommended Learning Resources
+          </h3>
           <div className="space-y-4">
             {recommendedResources.map((resource) => (
               <div key={resource.id} className="liquid-card border rounded-lg p-4 ripple-effect">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">{resource.title}</h4>
-                    <p className="text-sm text-gray-600">{resource.provider}</p>
+                    <h4 className={`font-semibold mb-1 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {resource.title}
+                    </h4>
+                    <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
+                      {resource.provider}
+                    </p>
                   </div>
                   <span className={`px-2 py-1 rounded-md text-xs font-medium ${
                     resource.type === 'certification' ? 'bg-purple-100 text-purple-800' :
@@ -201,7 +216,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
                   </span>
                 </div>
 
-                <div className="flex items-center space-x-4 mb-3 text-sm text-gray-600">
+                <div className={`flex items-center space-x-4 mb-3 text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
                   <div className="flex items-center space-x-1">
                     <Clock className="h-4 w-4" />
                     <span>{resource.duration}</span>
@@ -222,15 +237,23 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
                 <div className="flex items-center justify-between">
                   <div className="flex flex-wrap gap-1">
                     {resource.skills.slice(0, 2).map((skill, index) => (
-                      <span key={index} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
+                      <span key={index} className={`text-xs px-2 py-1 rounded-md ${
+                        isDarkMode ? 'bg-slate-700 text-slate-300' : 'bg-gray-100 text-gray-600'
+                      }`}>
                         {skill}
                       </span>
                     ))}
                     {resource.skills.length > 2 && (
-                      <span className="text-xs text-gray-500">+{resource.skills.length - 2}</span>
+                      <span className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-gray-500'}`}>
+                        +{resource.skills.length - 2}
+                      </span>
                     )}
                   </div>
-                  <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium liquid-button bg-blue-50 px-3 py-1 rounded-md">
+                  <button className={`flex items-center space-x-1 text-sm font-medium liquid-button px-3 py-1 rounded-md ${
+                    isDarkMode 
+                      ? 'text-blue-400 hover:text-blue-300 bg-blue-900/50' 
+                      : 'text-blue-600 hover:text-blue-700 bg-blue-50'
+                  }`}>
                     <span>View Resource</span>
                     <ExternalLink className="h-4 w-4" />
                   </button>
@@ -253,7 +276,11 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
       <div className="flex justify-center mt-8 space-x-4">
         <button
           onClick={onStartOver}
-          className="liquid-button bg-gray-100 px-6 py-3 border border-gray-300 rounded-lg text-gray-700"
+          className={`liquid-button px-6 py-3 border rounded-lg ${
+            isDarkMode 
+              ? 'bg-slate-700 border-slate-600 text-slate-300' 
+              : 'bg-gray-100 border-gray-300 text-gray-700'
+          }`}
         >
           Start Over
         </button>

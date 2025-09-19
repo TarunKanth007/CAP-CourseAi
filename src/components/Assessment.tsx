@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Question, CareerPath } from '../types';
+import { useTheme } from '../contexts/ThemeContext';
 import { generateQuestions } from '../data/questions';
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 
@@ -10,6 +11,7 @@ interface AssessmentProps {
 }
 
 const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) => {
+  const { isDarkMode } = useTheme();
   const questions = generateQuestions(career.id);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
@@ -43,30 +45,44 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="liquid-card bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
+      <div className={`liquid-card rounded-2xl shadow-xl p-8 relative overflow-hidden transition-all duration-300 ${
+        isDarkMode ? 'bg-slate-800' : 'bg-white'
+      }`}>
         {/* Floating Background Elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl floating-element"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/10 to-blue-400/10 rounded-full blur-2xl floating-element"></div>
+        <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl floating-element ${
+          isDarkMode 
+            ? 'bg-gradient-to-br from-blue-400/20 to-purple-400/20' 
+            : 'bg-gradient-to-br from-blue-400/10 to-purple-400/10'
+        }`}></div>
+        <div className={`absolute bottom-0 left-0 w-24 h-24 rounded-full blur-2xl floating-element ${
+          isDarkMode 
+            ? 'bg-gradient-to-tr from-purple-400/20 to-blue-400/20' 
+            : 'bg-gradient-to-tr from-purple-400/10 to-blue-400/10'
+        }`}></div>
         
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors liquid-button bg-gray-100 px-3 py-2 rounded-lg"
+              className={`flex items-center space-x-2 transition-colors liquid-button px-3 py-2 rounded-lg ${
+                isDarkMode 
+                  ? 'text-slate-300 hover:text-white bg-slate-700' 
+                  : 'text-gray-600 hover:text-gray-800 bg-gray-100'
+              }`}
             >
               <ChevronLeft className="h-5 w-5" />
               <span>Back to Career Selection</span>
             </button>
-            <div className="text-sm text-gray-500">
+            <div className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
               Question {currentQuestion + 1} of {questions.length}
             </div>
           </div>
           
           <div className="mb-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {career.title} Skills Assessment
             </h2>
-            <p className="text-gray-600">
+            <p className={isDarkMode ? 'text-slate-300' : 'text-gray-600'}>
               Help us understand your current proficiency level to provide personalized recommendations.
             </p>
           </div>
@@ -80,18 +96,22 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
         </div>
 
         <div className="mb-8">
-          <div className="glass-morphism p-6 rounded-xl border border-blue-200 relative overflow-hidden">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className={`glass-morphism p-6 rounded-xl border relative overflow-hidden ${
+            isDarkMode ? 'border-blue-400/30' : 'border-blue-200'
+          }`}>
+            <h3 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
               {currentQ.question}
             </h3>
             
-            <div className="mb-2 text-sm text-gray-600">
-              Skill: <span className="font-medium text-blue-600">{currentQ.skill}</span>
+            <div className={`mb-2 text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
+              Skill: <span className={`font-medium ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                {currentQ.skill}
+              </span>
             </div>
 
             {currentQ.type === 'scale' && (
               <div className="space-y-4">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className={`flex justify-between text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
                   <span>Beginner</span>
                   <span>Expert</span>
                 </div>
@@ -102,15 +122,15 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
                       onClick={() => handleResponse(currentQ.id, level)}
                       className={`flex-1 py-3 rounded-lg border-2 transition-all duration-200 ripple-effect ${
                         responses[currentQ.id] === level
-                          ? 'border-blue-500 bg-blue-500 text-white liquid-glow'
-                          : 'border-gray-300 hover:border-blue-300 bg-white liquid-card'
+                          ? `${isDarkMode ? 'border-blue-400 bg-blue-400' : 'border-blue-500 bg-blue-500'} text-white liquid-glow`
+                          : `${isDarkMode ? 'border-slate-600 hover:border-blue-400 bg-slate-700' : 'border-gray-300 hover:border-blue-300 bg-white'} liquid-card`
                       }`}
                     >
                       {level}
                     </button>
                   ))}
                 </div>
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className={`flex justify-between text-xs ${isDarkMode ? 'text-slate-500' : 'text-gray-500'}`}>
                   <span>No Experience</span>
                   <span>Some Knowledge</span>
                   <span>Competent</span>
@@ -128,15 +148,15 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
                     onClick={() => handleResponse(currentQ.id, option)}
                     className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ripple-effect ${
                       responses[currentQ.id] === option
-                        ? 'border-blue-500 bg-blue-50 text-blue-900 liquid-glow'
-                        : 'border-gray-300 hover:border-blue-300 bg-white liquid-card'
+                        ? `${isDarkMode ? 'border-blue-400 bg-blue-900/50 text-blue-300' : 'border-blue-500 bg-blue-50 text-blue-900'} liquid-glow`
+                        : `${isDarkMode ? 'border-slate-600 hover:border-blue-400 bg-slate-700' : 'border-gray-300 hover:border-blue-300 bg-white'} liquid-card`
                     }`}
                   >
                     <div className="flex items-center space-x-3">
                       <div className={`w-4 h-4 rounded-full border-2 ${
                         responses[currentQ.id] === option
-                          ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
+                          ? `${isDarkMode ? 'border-blue-400 bg-blue-400' : 'border-blue-500 bg-blue-500'}`
+                          : `${isDarkMode ? 'border-slate-500' : 'border-gray-300'}`
                       }`}>
                         {responses[currentQ.id] === option && (
                           <CheckCircle className="w-4 h-4 text-white" />
@@ -155,7 +175,11 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
           <button
             onClick={prevQuestion}
             disabled={currentQuestion === 0}
-            className="flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed liquid-button bg-gray-100"
+            className={`flex items-center space-x-2 px-6 py-3 border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed liquid-button ${
+              isDarkMode 
+                ? 'border-slate-600 text-slate-300 bg-slate-700' 
+                : 'border-gray-300 text-gray-700 bg-gray-100'
+            }`}
           >
             <ChevronLeft className="h-4 w-4" />
             <span>Previous</span>
