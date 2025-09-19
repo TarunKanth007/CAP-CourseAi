@@ -26,10 +26,10 @@ const CareerSelector: React.FC<CareerSelectorProps> = ({ onSelectCareer, selecte
         {careerPaths.map((career) => (
           <div
             key={career.id}
-            className={`bg-white rounded-xl shadow-lg border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer group ${
+            className={`liquid-card bg-white rounded-xl shadow-lg border-2 cursor-pointer group ripple-effect relative ${
               selectedCareer?.id === career.id
-                ? 'border-blue-500 ring-4 ring-blue-500/20'
-                : 'border-gray-200 hover:border-blue-300'
+                ? 'border-blue-500 ring-4 ring-blue-500/20 liquid-glow'
+                : 'border-gray-200'
             }`}
             onClick={() => onSelectCareer(career)}
             onMouseEnter={() => setHoveredCareer(career.id)}
@@ -82,7 +82,7 @@ const CareerSelector: React.FC<CareerSelectorProps> = ({ onSelectCareer, selecte
               </div>
 
               <div className="flex items-center justify-between">
-                <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2">
+                <button className="liquid-button text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center space-x-2">
                   <span>Start Assessment</span>
                   <ChevronRight className="h-4 w-4" />
                 </button>

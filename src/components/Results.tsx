@@ -94,7 +94,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
 
       {/* Score Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white">
+        <div className="liquid-card bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl text-white floating-element">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-blue-100 text-sm">Overall Score</p>
@@ -104,7 +104,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white">
+        <div className="liquid-card bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-xl text-white floating-element">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-green-100 text-sm">Strong Skills</p>
@@ -114,7 +114,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white">
+        <div className="liquid-card bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-xl text-white floating-element">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-orange-100 text-sm">Improvement Areas</p>
@@ -124,7 +124,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white">
+        <div className="liquid-card bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl text-white floating-element">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-purple-100 text-sm">Readiness Level</p>
@@ -139,11 +139,11 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Skill Analysis */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="liquid-card bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">Skill Analysis</h3>
           <div className="space-y-4">
             {skillGaps.map((gap, index) => (
-              <div key={index} className="border rounded-lg p-4">
+              <div key={index} className="liquid-card border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h4 className="font-semibold text-gray-900">{gap.skill}</h4>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -160,9 +160,9 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
                     <span>Current Level: {gap.currentLevel}/5</span>
                     <span>Target: {gap.requiredLevel}/5</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="liquid-progress w-full rounded-full h-3">
                     <div 
-                      className={`h-3 rounded-full ${
+                      className={`liquid-progress-fill h-3 rounded-full ${
                         gap.gap === 0 ? 'bg-green-500' : 'bg-gradient-to-r from-orange-400 to-red-500'
                       }`}
                       style={{ width: `${(gap.currentLevel / gap.requiredLevel) * 100}%` }}
@@ -181,11 +181,11 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
         </div>
 
         {/* Learning Recommendations */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="liquid-card bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">Recommended Learning Resources</h3>
           <div className="space-y-4">
             {recommendedResources.map((resource) => (
-              <div key={resource.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div key={resource.id} className="liquid-card border rounded-lg p-4 ripple-effect">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-900 mb-1">{resource.title}</h4>
@@ -230,7 +230,7 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
                       <span className="text-xs text-gray-500">+{resource.skills.length - 2}</span>
                     )}
                   </div>
-                  <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  <button className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm font-medium liquid-button bg-blue-50 px-3 py-1 rounded-md">
                     <span>View Resource</span>
                     <ExternalLink className="h-4 w-4" />
                   </button>
@@ -253,11 +253,11 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
       <div className="flex justify-center mt-8 space-x-4">
         <button
           onClick={onStartOver}
-          className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          className="liquid-button bg-gray-100 px-6 py-3 border border-gray-300 rounded-lg text-gray-700"
         >
           Start Over
         </button>
-        <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
+        <button className="liquid-button px-6 py-3 text-white rounded-lg">
           Download Learning Plan
         </button>
       </div>

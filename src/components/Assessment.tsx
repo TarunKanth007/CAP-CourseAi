@@ -43,12 +43,16 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="liquid-card bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
+        {/* Floating Background Elements */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl floating-element"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-purple-400/10 to-blue-400/10 rounded-full blur-2xl floating-element"></div>
+        
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onBack}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors liquid-button bg-gray-100 px-3 py-2 rounded-lg"
             >
               <ChevronLeft className="h-5 w-5" />
               <span>Back to Career Selection</span>
@@ -67,16 +71,16 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
             </p>
           </div>
 
-          <div className="w-full bg-gray-200 rounded-full h-3 mb-6">
+          <div className="liquid-progress w-full rounded-full h-3 mb-6">
             <div
-              className="bg-gradient-to-r from-blue-600 to-purple-600 h-3 rounded-full transition-all duration-500"
+              className="liquid-progress-fill h-3 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             ></div>
           </div>
         </div>
 
         <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+          <div className="glass-morphism p-6 rounded-xl border border-blue-200 relative overflow-hidden">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">
               {currentQ.question}
             </h3>
@@ -96,10 +100,10 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
                     <button
                       key={level}
                       onClick={() => handleResponse(currentQ.id, level)}
-                      className={`flex-1 py-3 rounded-lg border-2 transition-all duration-200 ${
+                      className={`flex-1 py-3 rounded-lg border-2 transition-all duration-200 ripple-effect ${
                         responses[currentQ.id] === level
-                          ? 'border-blue-500 bg-blue-500 text-white'
-                          : 'border-gray-300 hover:border-blue-300 bg-white'
+                          ? 'border-blue-500 bg-blue-500 text-white liquid-glow'
+                          : 'border-gray-300 hover:border-blue-300 bg-white liquid-card'
                       }`}
                     >
                       {level}
@@ -122,10 +126,10 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
                   <button
                     key={index}
                     onClick={() => handleResponse(currentQ.id, option)}
-                    className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ${
+                    className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ripple-effect ${
                       responses[currentQ.id] === option
-                        ? 'border-blue-500 bg-blue-50 text-blue-900'
-                        : 'border-gray-300 hover:border-blue-300 bg-white'
+                        ? 'border-blue-500 bg-blue-50 text-blue-900 liquid-glow'
+                        : 'border-gray-300 hover:border-blue-300 bg-white liquid-card'
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -151,7 +155,7 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
           <button
             onClick={prevQuestion}
             disabled={currentQuestion === 0}
-            className="flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center space-x-2 px-6 py-3 border border-gray-300 rounded-lg text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed liquid-button bg-gray-100"
           >
             <ChevronLeft className="h-4 w-4" />
             <span>Previous</span>
@@ -160,7 +164,7 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
           <button
             onClick={nextQuestion}
             disabled={!isAnswered}
-            className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            className="flex items-center space-x-2 px-6 py-3 liquid-button text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <span>{currentQuestion === questions.length - 1 ? 'Complete Assessment' : 'Next'}</span>
             <ChevronRight className="h-4 w-4" />
