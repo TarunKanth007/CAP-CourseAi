@@ -5,7 +5,7 @@ import { Brain, Loader, CheckCircle, ChevronLeft } from 'lucide-react';
 
 interface AIAssessmentProps {
   career: Career;
-  onComplete: (result: AssessmentResult) => void;
+  onComplete: (result: AssessmentResult, responses: Record<string, any>) => void;
   onBack: () => void;
 }
 
@@ -77,7 +77,7 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
       readinessLevel: 'Medium'
     };
 
-    onComplete(result);
+    onComplete(result, responses);
   };
 
   if (isGenerating) {

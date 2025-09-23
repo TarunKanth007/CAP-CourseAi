@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 
 interface AssessmentProps {
   career: CareerPath;
-  onComplete: (responses: Record<string, any>) => void;
+  onComplete: (result: AssessmentResult, responses: Record<string, any>) => void;
   onBack: () => void;
 }
 
@@ -27,7 +27,27 @@ const Assessment: React.FC<AssessmentProps> = ({ career, onComplete, onBack }) =
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
-      onComplete(responses);
+      // Generate assessment result
+      const skillGaps: SkillGap[] = career.skills.map(skill => ({
+        skill,
+        currentLevel: Math.floor(Math.random() * 3) + 2,
+        requiredLevel: 4,
+        gap: Math.floor(Math.random() * 2) + 1,
+        priority: Math.random() > 0.5 ? 'high' : 'medium' as 'high' | 'medium' | 'low'
+      }));
+
+      const result: AssessmentResult = {
+        overallScore: Math.floor(Math.random() * 30) + 60,
+        skillGaps,
+        recommendations: [
+          `Focus on strengthening ${skillGaps[0]?.skill} skills`,
+          `Consider taking advanced courses in ${skillGaps[1]?.skill}`,
+          'Build a portfolio showcasing your projects'
+        ],
+        readinessLevel: 'Medium'
+      };
+
+      onComplete(result, responses);
     }
   };
 

@@ -8,71 +8,16 @@ import { TrendingUp, TrendingDown, Target, BookOpen, Clock, Star, ExternalLink, 
 
 interface ResultsProps {
   career: CareerPath;
-  responses: Record<string, any>;
+  result: AssessmentResult;
   onStartOver: () => void;
+  onStartAssessment: () => void;
 }
 
-const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => {
+const Results: React.FC<ResultsProps> = ({ career, result, onStartOver, onStartAssessment }) => {
   const { isDarkMode } = useTheme();
 
-  // Calculate skill levels and gaps
-  const calculateSkillGaps = (): SkillGap[] => {
-    const gaps: SkillGap[] = [];
-    const requiredLevel = 4; // Industry standard level
-
-    career.skills.forEach(skill => {
-      // Find response for this skill
-      const questionWithSkill = Object.entries(responses).find(([_, value]) => 
-        typeof value === 'number' || typeof value === 'string'
-      );
-      
-      let currentLevel = 0;
-      if (questionWithSkill) {
-        const [_, response] = questionWithSkill;
-        if (typeof response === 'number') {
-          currentLevel = response;
-        } else if (typeof response === 'string') {
-          // Convert text responses to numeric levels
-          const levelMap: Record<string, number> = {
-            'Never used it': 1,
-            'No experience': 1,
-            'Not familiar': 1,
-            'Never used any': 1,
-            'Beginner': 1,
-            'Basic understanding': 2,
-            'Basic knowledge': 2,
-            'Basic commands': 2,
-            'Some experience': 2,
-            'Built several projects': 3,
-            'Comfortable with branching': 3,
-            'Managed campaigns': 3,
-            'Expert level': 4,
-            'Advanced workflows': 4,
-            'Expert in ML': 4,
-            'Advanced expert': 4
-          };
-          currentLevel = levelMap[response] || Math.floor(Math.random() * 3) + 2;
-        }
-      } else {
-        // Random level for demo purposes
-        currentLevel = Math.floor(Math.random() * 4) + 1;
-      }
-
-      const gap = Math.max(0, requiredLevel - currentLevel);
-      gaps.push({
-        skill,
-        currentLevel,
-        requiredLevel,
-        gap,
-        priority: gap >= 2 ? 'high' : gap >= 1 ? 'medium' : 'low'
-      });
-    });
-
-    return gaps.sort((a, b) => b.gap - a.gap);
-  };
-
-  const skillGaps = calculateSkillGaps();
-  const overallScore = Math.round((skillGaps.reduce((sum, gap) => sum + gap.currentLevel, 0) / skillGaps.length) * 20);
+  const skillGaps = result.skillGaps;
+  const overallScore = result.overallScore;
   const strongSkills = skillGaps.filter(gap => gap.gap === 0).length;
   const improvementAreas = skillGaps.filter(gap => gap.gap > 0).length;
 
@@ -282,7 +227,17 @@ const Results: React.FC<ResultsProps> = ({ career, responses, onStartOver }) => 
               : 'bg-gray-100 border-gray-300 text-gray-700'
           }`}
         >
-          Start Over
+          Back to Dashboard
+        </button>
+        <button
+          onClick={onStartAssessment}
+          className={`liquid-button px-6 py-3 border rounded-lg ${
+            isDarkMode 
+              ? 'bg-slate-700 border-slate-600 text-slate-300' 
+              : 'bg-gray-100 border-gray-300 text-gray-700'
+          }`}
+        >
+          New Assessment
         </button>
         <button className="liquid-button px-6 py-3 text-white rounded-lg">
           Download Learning Plan

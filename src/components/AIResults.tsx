@@ -7,12 +7,13 @@ import { TrendingUp, TrendingDown, Target, BookOpen, Clock, Star, ExternalLink, 
 
 interface CareerDetailsProps {
   career: CareerPath;
-  skillGaps: SkillGap[];
-  onStartLearning: () => void;
-  onBookConsultation: () => void;
+  result: AssessmentResult;
+  onRestart: () => void;
+  onStartAssessment: () => void;
 }
 
-export default function CareerDetails({ career, skillGaps, onStartLearning, onBookConsultation }: CareerDetailsProps) {
+export default function AIResults({ career, result, onRestart, onStartAssessment }: CareerDetailsProps) {
+  const skillGaps = result.skillGaps;
   const recommendedResources = learningResources.filter(resource =>
     resource.skills.some(skill => skillGaps.some(gap => gap.skill === skill && gap.gap > 0))
   ).slice(0, 6);
@@ -160,18 +161,19 @@ export default function CareerDetails({ career, skillGaps, onStartLearning, onBo
       {/* Action Buttons */}
       <div className="flex justify-center mt-8 space-x-4">
         <button
-          onClick={onStartLearning}
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center"
+          onClick={onRestart}
+          className="liquid-button px-6 py-3 border rounded-lg bg-gray-100 border-gray-300 text-gray-700"
         >
-          <Brain className="h-5 w-5 mr-2" />
-          Start Learning Path
+          Back to Dashboard
         </button>
         <button
-          onClick={onBookConsultation}
-          className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center"
+          onClick={onStartAssessment}
+          className="liquid-button px-6 py-3 border rounded-lg bg-gray-100 border-gray-300 text-gray-700"
         >
-          <Lightbulb className="h-5 w-5 mr-2" />
-          Book Consultation
+          New Assessment
+        </button>
+        <button className="liquid-button px-6 py-3 text-white rounded-lg">
+          Download Learning Plan
         </button>
       </div>
     </div>
