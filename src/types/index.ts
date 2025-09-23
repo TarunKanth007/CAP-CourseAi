@@ -55,3 +55,24 @@ export interface UserProfile {
   skillLevels: Record<string, number>;
   learningGoals: string[];
 }
+
+export interface Career {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  skills: string[];
+  averageSalary: string;
+  growthRate: string;
+  icon: string;
+  timeToComplete?: string;
+  demandLevel?: string;
+  difficulty?: string;
+}
+
+export interface AssessmentResult {
+  overallScore: number;
+  skillGaps: SkillGap[];
+  recommendations: string[];
+  readinessLevel: 'Low' | 'Medium' | 'High';
+}

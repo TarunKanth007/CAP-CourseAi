@@ -1,6 +1,6 @@
-import { CareerPath } from '../types';
+import { Career } from '../types';
 
-export const careerPaths: CareerPath[] = [
+export const careerPaths: Career[] = [
   {
     id: 'software-engineer',
     title: 'Software Engineer',
@@ -9,7 +9,10 @@ export const careerPaths: CareerPath[] = [
     skills: ['JavaScript', 'Python', 'React', 'Node.js', 'Database Management', 'System Design', 'Problem Solving', 'Version Control'],
     averageSalary: '$95,000 - $150,000',
     growthRate: '22%',
-    icon: '💻'
+    icon: '💻',
+    timeToComplete: '3-6 months',
+    demandLevel: 'Very High',
+    difficulty: 'Intermediate'
   },
   {
     id: 'data-scientist',
