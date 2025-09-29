@@ -62,6 +62,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
+    // Check if Supabase is properly configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const isConfigured = supabaseUrl && supabaseAnonKey && 
+      supabaseUrl !== 'https://your-project-id.supabase.co' && 
+      !supabaseAnonKey.includes('fake-key');
+
+    if (!isConfigured) {
+      return { 
+        error: { 
+          message: 'Supabase is not configured. Please check your environment variables.' 
+        } 
+      };
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -70,6 +85,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    // Check if Supabase is properly configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const isConfigured = supabaseUrl && supabaseAnonKey && 
+      supabaseUrl !== 'https://your-project-id.supabase.co' && 
+      !supabaseAnonKey.includes('fake-key');
+
+    if (!isConfigured) {
+      return { 
+        error: { 
+          message: 'Supabase is not configured. Please update your .env file with valid Supabase credentials.' 
+        } 
+      };
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
