@@ -3,12 +3,18 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Provide fallback values for development
+const defaultUrl = 'https://your-project.supabase.co';
+const defaultKey = 'your-anon-key';
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  console.warn('Supabase environment variables not found. Using fallback values for development.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
+export const supabase = createClient(
+  supabaseUrl || defaultUrl,
+  supabaseAnonKey || defaultKey
+);
 // Database Types
 export interface Database {
   public: {
