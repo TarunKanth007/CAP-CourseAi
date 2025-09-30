@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { AssessmentResult, SkillGap } from '../types';
 
 export interface SaveAssessmentData {
@@ -12,6 +12,11 @@ export interface SaveAssessmentData {
 export const assessmentService = {
   // Save assessment results to Supabase
   async saveAssessment(data: SaveAssessmentData) {
+    if (!isSupabaseConfigured || !supabase) {
+      console.warn('Supabase not configured - assessment data not saved');
+      return { success: true, demo: true };
+    }
+
     try {
       const { error } = await supabase
         .from('assessments')
@@ -38,6 +43,10 @@ export const assessmentService = {
 
   // Get user's assessment history
   async getUserAssessments(userId: string) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
     try {
       const { data, error } = await supabase
         .from('assessments')
@@ -55,6 +64,10 @@ export const assessmentService = {
 
   // Update user progress
   async updateUserProgress(userId: string, careerPath: string, skillLevels: Record<string, number>) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, demo: true };
+    }
+
     try {
       const { error } = await supabase
         .from('user_progress')
@@ -77,6 +90,10 @@ export const assessmentService = {
 
   // Get user progress
   async getUserProgress(userId: string, careerPath?: string) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
     try {
       let query = supabase
         .from('user_progress')
@@ -99,6 +116,10 @@ export const assessmentService = {
 
   // Get assessment analytics (for admin/research purposes)
   async getAssessmentAnalytics() {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
     try {
       const { data, error } = await supabase
         .from('assessments')

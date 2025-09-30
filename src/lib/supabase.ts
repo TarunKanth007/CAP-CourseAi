@@ -3,12 +3,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Check if environment variables are properly configured
-const isConfigured = supabaseUrl && supabaseAnonKey && 
+// Check if Supabase is properly configured
+export const isSupabaseConfigured = supabaseUrl && 
+  supabaseAnonKey && 
   supabaseUrl !== 'https://your-project-id.supabase.co' && 
-  !supabaseAnonKey.includes('fake-key');
+  supabaseUrl.startsWith('https://') &&
+  !supabaseAnonKey.includes('fake-key') &&
+  supabaseAnonKey.length > 20;
 
-if (!isConfigured) {
+if (!isSupabaseConfigured) {
   console.error('⚠️ Supabase not configured properly. Please update your .env file with valid credentials.');
   console.log('📝 Instructions:');
   console.log('1. Go to https://supabase.com and create a project');
@@ -17,11 +20,39 @@ if (!isConfigured) {
   console.log('4. Update .env file with your credentials');
 }
 
-// Use mock client for development when not configured
-export const supabase = createClient(
-  supabaseUrl || 'https://mock.supabase.co',
-  supabaseAnonKey || 'mock-key'
-);
+// Create Supabase client only if properly configured
+export const supabase = isSupabaseConfigured 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+// Mock client for development
+export const mockSupabaseClient = {
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    onAuthStateChange: (callback: any) => {
+      // Call callback immediately with no session
+      setTimeout(() => callback('INITIAL_SESSION', null), 0);
+      return { data: { subscription: { unsubscribe: () => {} } } };
+    },
+    signInWithPassword: () => Promise.resolve({ 
+      data: { user: null, session: null }, 
+      error: { message: 'Supabase not configured. Using mock authentication.' }
+    }),
+    signUp: () => Promise.resolve({ 
+      data: { user: null, session: null }, 
+      error: { message: 'Supabase not configured. Using mock authentication.' }
+    }),
+    signOut: () => Promise.resolve({ error: null })
+  },
+  from: () => ({
+    select: () => ({ data: [], error: null }),
+    insert: () => ({ data: null, error: null }),
+    update: () => ({ data: null, error: null }),
+    upsert: () => ({ data: null, error: null }),
+    eq: function() { return this; },
+    order: function() { return this; }
+  })
+};
 // Database Types
 export interface Database {
   public: {

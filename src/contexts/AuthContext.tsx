@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { supabase, mockSupabaseClient, isSupabaseConfigured } from '../lib/supabase';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -18,24 +19,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const client = supabase || mockSupabaseClient;
+
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Get initial session with error handling
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await client.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.warn('Failed to get initial session:', error);
+        setSession(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = client.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
 
       // Create user profile if signing up
-      if (event === 'SIGNED_UP' && session?.user) {
+      if (event === 'SIGNED_UP' && session?.user && isSupabaseConfigured) {
         await createUserProfile(session.user);
       }
     });
@@ -44,6 +57,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const createUserProfile = async (user: User) => {
+    if (!isSupabaseConfigured || !supabase) return;
+    
     try {
       const { error } = await supabase
         .from('users')
@@ -62,22 +77,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    // Check if Supabase is properly configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    const isConfigured = supabaseUrl && supabaseAnonKey && 
-      supabaseUrl !== 'https://your-project-id.supabase.co' && 
-      !supabaseAnonKey.includes('fake-key');
-
-    if (!isConfigured) {
+    if (!isSupabaseConfigured) {
       return { 
         error: { 
-          message: 'Supabase is not configured. Please check your environment variables.' 
+          message: 'Demo Mode: Supabase not configured. Please set up your Supabase credentials to enable authentication.' 
         } 
       };
     }
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await client.auth.signInWithPassword({
       email,
       password,
     });
@@ -85,22 +93,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    // Check if Supabase is properly configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    const isConfigured = supabaseUrl && supabaseAnonKey && 
-      supabaseUrl !== 'https://your-project-id.supabase.co' && 
-      !supabaseAnonKey.includes('fake-key');
-
-    if (!isConfigured) {
+    if (!isSupabaseConfigured) {
       return { 
         error: { 
-          message: 'Supabase is not configured. Please update your .env file with valid Supabase credentials.' 
+          message: 'Demo Mode: Supabase not configured. Please set up your Supabase credentials to enable user registration.' 
         } 
       };
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await client.auth.signUp({
       email,
       password,
       options: {
@@ -113,13 +114,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await client.auth.signOut();
   };
 
   const value = {
     user,
     session,
     loading,
+    isConfigured: isSupabaseConfigured,
     signIn,
     signUp,
     signOut,

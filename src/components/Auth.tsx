@@ -4,7 +4,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Brain, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 
 const Auth: React.FC = () => {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, isConfigured } = useAuth();
   const { isDarkMode } = useTheme();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
@@ -68,6 +68,12 @@ const Auth: React.FC = () => {
             }
           </p>
         </div>
+
+        {!isConfigured && (
+          <div className="mb-4 p-3 rounded-lg bg-blue-100 border border-blue-300 text-blue-700 text-sm">
+            <strong>Demo Mode:</strong> Supabase is not configured. Set up your Supabase credentials to enable authentication.
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700 text-sm">
