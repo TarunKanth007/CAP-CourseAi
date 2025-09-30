@@ -75,4 +75,52 @@ export interface AssessmentResult {
   skillGaps: SkillGap[];
   recommendations: string[];
   readinessLevel: 'Low' | 'Medium' | 'High';
+  completionTime?: number; // in minutes
+  strengths?: string[];
+  improvementAreas?: string[];
+  nextSteps?: string[];
+}
+
+export interface LearningGoal {
+  id: string;
+  title: string;
+  description: string;
+  targetDate: string;
+  progress: number; // 0-100
+  skills: string[];
+  resources: string[];
+  completed: boolean;
+}
+
+export interface StudyPlan {
+  id: string;
+  careerPath: string;
+  duration: string; // e.g., "3 months"
+  phases: StudyPhase[];
+  totalHours: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+}
+
+export interface StudyPhase {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  skills: string[];
+  resources: LearningResource[];
+  milestones: string[];
+  completed: boolean;
+}
+
+export interface CareerInsight {
+  careerPath: string;
+  marketTrend: 'growing' | 'stable' | 'declining';
+  salaryTrend: 'increasing' | 'stable' | 'decreasing';
+  demandLevel: 'low' | 'medium' | 'high' | 'very-high';
+  competitionLevel: 'low' | 'medium' | 'high' | 'very-high';
+  keySkills: string[];
+  emergingSkills: string[];
+  industryGrowth: string;
+  jobOpenings: number;
+  averageApplications: number;
 }

@@ -4,16 +4,19 @@ import { useTheme } from '../contexts/ThemeContext';
 import { learningResources } from '../data/resources';
 import { companyHiringData, marketInsights } from '../data/industryData';
 import MarketInsights from './MarketInsights';
+import SkillGapAnalysis from './SkillGapAnalysis';
+import LearningPathGenerator from './LearningPathGenerator';
+import CareerComparison from './CareerComparison';
 import { TrendingUp, TrendingDown, Target, BookOpen, Clock, Star, ExternalLink, Award } from 'lucide-react';
 
 interface ResultsProps {
   career: CareerPath;
   result: AssessmentResult;
-  onStartOver: () => void;
+  onRestart: () => void;
   onStartAssessment: () => void;
 }
 
-const Results: React.FC<ResultsProps> = ({ career, result, onStartOver, onStartAssessment }) => {
+const Results: React.FC<ResultsProps> = ({ career, result, onRestart, onStartAssessment }) => {
   const { isDarkMode } = useTheme();
 
   const skillGaps = result.skillGaps;
@@ -88,52 +91,6 @@ const Results: React.FC<ResultsProps> = ({ career, result, onStartOver, onStartA
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Skill Analysis */}
-        <div className={`liquid-card rounded-xl shadow-lg p-6 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
-          <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Skill Analysis
-          </h3>
-          <div className="space-y-4">
-            {skillGaps.map((gap, index) => (
-              <div key={index} className="liquid-card border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {gap.skill}
-                  </h4>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    gap.priority === 'high' ? 'bg-red-100 text-red-800' :
-                    gap.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {gap.priority === 'low' ? 'Strong' : gap.priority} priority
-                  </span>
-                </div>
-                
-                <div className="mb-2">
-                  <div className={`flex justify-between text-sm mb-1 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
-                    <span>Current Level: {gap.currentLevel}/5</span>
-                    <span>Target: {gap.requiredLevel}/5</span>
-                  </div>
-                  <div className="liquid-progress w-full rounded-full h-3">
-                    <div 
-                      className={`liquid-progress-fill h-3 rounded-full ${
-                        gap.gap === 0 ? 'bg-green-500' : 'bg-gradient-to-r from-orange-400 to-red-500'
-                      }`}
-                      style={{ width: `${(gap.currentLevel / gap.requiredLevel) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {gap.gap > 0 && (
-                  <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
-                    Recommended improvement: {gap.gap} level{gap.gap > 1 ? 's' : ''}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Learning Recommendations */}
         <div className={`liquid-card rounded-xl shadow-lg p-6 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
           <h3 className={`text-2xl font-bold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -209,6 +166,13 @@ const Results: React.FC<ResultsProps> = ({ career, result, onStartOver, onStartA
         </div>
       </div>
 
+      {/* Advanced Analysis Components */}
+      <div className="space-y-8">
+        <SkillGapAnalysis skillGaps={skillGaps} careerTitle={career.title} />
+        <LearningPathGenerator career={career} skillGaps={skillGaps} />
+        <CareerComparison currentCareer={career} />
+      </div>
+
       {/* Market Insights Section */}
       {careerInsights && (
         <MarketInsights 
@@ -220,7 +184,7 @@ const Results: React.FC<ResultsProps> = ({ career, result, onStartOver, onStartA
       {/* Action Buttons */}
       <div className="flex justify-center mt-8 space-x-4">
         <button
-          onClick={onStartOver}
+          onClick={onRestart}
           className={`liquid-button px-6 py-3 border rounded-lg ${
             isDarkMode 
               ? 'bg-slate-700 border-slate-600 text-slate-300' 

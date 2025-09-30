@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { assessmentService } from '../services/assessmentService';
+import ProgressTracker from './ProgressTracker';
 import { BarChart3, Clock, Target, TrendingUp, LogOut, User } from 'lucide-react';
 
 interface AssessmentHistory {
@@ -18,6 +19,7 @@ const Dashboard: React.FC = () => {
   const { isDarkMode } = useTheme();
   const [assessments, setAssessments] = useState<AssessmentHistory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress'>('overview');
 
   useEffect(() => {
     if (user) {
@@ -93,6 +95,38 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className={`liquid-card rounded-xl p-2 mb-8 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+              activeTab === 'overview'
+                ? 'liquid-button text-white'
+                : isDarkMode
+                  ? 'text-slate-300 hover:text-white hover:bg-slate-700'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('progress')}
+            className={`flex-1 py-3 px-4 rounded-lg font-medium transition-all ${
+              activeTab === 'progress'
+                ? 'liquid-button text-white'
+                : isDarkMode
+                  ? 'text-slate-300 hover:text-white hover:bg-slate-700'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+            }`}
+          >
+            Progress Tracker
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className={`liquid-card p-6 rounded-xl floating-element ${
@@ -220,6 +254,10 @@ const Dashboard: React.FC = () => {
           </div>
         )}
       </div>
+        </>
+      )}
+
+      {activeTab === 'progress' && <ProgressTracker />}
     </div>
   );
 };
