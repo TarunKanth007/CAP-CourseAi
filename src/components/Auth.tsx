@@ -71,7 +71,8 @@ const Auth: React.FC = () => {
 
         {!isConfigured && (
           <div className="mb-4 p-3 rounded-lg bg-blue-100 border border-blue-300 text-blue-700 text-sm">
-            <strong>Demo Mode:</strong> Supabase is not configured. Set up your Supabase credentials to enable authentication.
+            <strong>Demo Mode:</strong> Supabase is not configured. The app will work with mock data. 
+            Set up your Supabase and Gemini API credentials for full functionality.
           </div>
         )}
 
