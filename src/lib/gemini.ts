@@ -5,6 +5,7 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 // Check if Gemini is properly configured
 export const isGeminiConfigured = apiKey && 
   apiKey !== 'your-gemini-api-key-here' && 
+  apiKey !== 'your-api-key' &&
   apiKey.length > 20;
 
 if (!isGeminiConfigured) {
@@ -208,18 +209,33 @@ Respond only with valid JSON.
   private getMockQuestion(request: AIQuestionRequest): AIQuestionResponse {
     const mockQuestions = [
       {
-        question: `How would you approach learning ${request.focusAreas[0] || 'new technologies'} for ${request.careerPath}?`,
+        question: `How would you approach learning ${request.focusAreas?.[0] || 'new technologies'} for ${request.careerPath}?`,
         type: 'text' as const,
-        skill: request.focusAreas[0] || 'General',
+        skill: request.focusAreas?.[0] || 'General',
         difficulty: 'intermediate' as const,
         reasoning: 'Mock question for development'
       },
       {
-        question: `Rate your confidence in ${request.focusAreas[1] || 'problem-solving'} on a scale of 1-5`,
+        question: `Rate your confidence in ${request.focusAreas?.[1] || 'problem-solving'} on a scale of 1-5`,
         type: 'scale' as const,
-        skill: request.focusAreas[1] || 'Problem Solving',
+        skill: request.focusAreas?.[1] || 'Problem Solving',
         difficulty: 'intermediate' as const,
         reasoning: 'Mock question for development'
+      },
+      {
+        question: `Which of the following best describes your experience with ${request.careerPath}?`,
+        type: 'multiple-choice' as const,
+        options: ['No experience', 'Some knowledge', 'Practical experience', 'Expert level'],
+        skill: 'Experience Level',
+        difficulty: 'beginner' as const,
+        reasoning: 'Assessing your current experience level'
+      },
+      {
+        question: `Describe a challenging project or problem you've solved recently. How did you approach it?`,
+        type: 'text' as const,
+        skill: 'Problem Solving',
+        difficulty: 'intermediate' as const,
+        reasoning: 'Understanding your problem-solving methodology'
       }
     ];
     

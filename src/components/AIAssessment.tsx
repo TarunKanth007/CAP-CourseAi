@@ -4,6 +4,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { Brain, Loader, CheckCircle, ChevronLeft, Sparkles, MessageSquare } from 'lucide-react';
 import { geminiService, AIQuestionResponse } from '../lib/gemini';
 
+import { isGeminiConfigured } from '../lib/gemini';
+
 interface AIAssessmentProps {
   career: Career;
   onComplete: (result: AssessmentResult, responses: Record<string, any>) => void;
@@ -36,6 +38,9 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
     setIsGenerating(true);
     
     try {
+      console.log('Generating AI questions for:', career.title);
+      console.log('Gemini configured:', isGeminiConfigured);
+      
       // Simulate generation steps
       for (let i = 0; i < generationSteps.length; i++) {
         await new Promise(resolve => setTimeout(resolve, 1200));
@@ -50,8 +55,19 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
         focusAreas: career.skills.slice(0, 3)
       });
 
+      console.log('Generated question:', firstQuestion);
+
       if (firstQuestion) {
         setQuestions([firstQuestion]);
+      } else {
+        // Ensure we always have at least one question
+        setQuestions([{
+          question: `What motivates you to pursue a career in ${career.title}?`,
+          type: 'text',
+          skill: 'Motivation',
+          difficulty: 'beginner',
+          reasoning: 'Understanding your career motivation'
+        }]);
       }
     } catch (error) {
       console.error('Error generating questions:', error);
@@ -64,7 +80,7 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
         reasoning: 'Understanding your motivation helps personalize the assessment'
       }]);
     } finally {
-      setIsGenerating(true);
+      setIsGenerating(false);
     }
   };
 
@@ -181,7 +197,7 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
         </div>
       </div>
     );
-  };
+  }
 
   if (isGenerating) {
     return (
