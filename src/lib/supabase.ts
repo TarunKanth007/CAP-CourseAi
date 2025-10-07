@@ -4,20 +4,23 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Check if Supabase is properly configured
-export const isSupabaseConfigured = supabaseUrl && 
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl && 
   supabaseAnonKey && 
   supabaseUrl !== 'https://your-project-id.supabase.co' && 
   supabaseUrl.startsWith('https://') &&
-  !supabaseAnonKey.includes('fake-key') &&
-  supabaseAnonKey.length > 20;
+  supabaseAnonKey !== 'your-anon-key-here' &&
+  supabaseAnonKey.length > 20
+);
 
 if (!isSupabaseConfigured) {
-  console.error('⚠️ Supabase not configured properly. Please update your .env file with valid credentials.');
+  console.warn('⚠️ Supabase not configured properly. Please update your .env file with valid credentials.');
   console.log('📝 Instructions:');
   console.log('1. Go to https://supabase.com and create a project');
   console.log('2. Go to Settings -> API in your Supabase dashboard');
   console.log('3. Copy your Project URL and anon public key');
   console.log('4. Update .env file with your credentials');
+  console.log('5. Run the database migrations in your Supabase dashboard');
 }
 
 // Create Supabase client only if properly configured
@@ -36,23 +39,24 @@ export const mockSupabaseClient = {
     },
     signInWithPassword: () => Promise.resolve({ 
       data: { user: null, session: null }, 
-      error: { message: 'Supabase not configured. Using mock authentication.' }
+      error: { message: 'Supabase not configured. Please set up your Supabase project and update the .env file.' }
     }),
     signUp: () => Promise.resolve({ 
       data: { user: null, session: null }, 
-      error: { message: 'Supabase not configured. Using mock authentication.' }
+      error: { message: 'Supabase not configured. Please set up your Supabase project and update the .env file.' }
     }),
     signOut: () => Promise.resolve({ error: null })
   },
   from: () => ({
-    select: () => ({ data: [], error: null }),
-    insert: () => ({ data: null, error: null }),
-    update: () => ({ data: null, error: null }),
-    upsert: () => ({ data: null, error: null }),
+    select: () => Promise.resolve({ data: [], error: null }),
+    insert: () => Promise.resolve({ data: null, error: null }),
+    update: () => Promise.resolve({ data: null, error: null }),
+    upsert: () => Promise.resolve({ data: null, error: null }),
     eq: function() { return this; },
     order: function() { return this; }
   })
 };
+
 // Database Types
 export interface Database {
   public: {
