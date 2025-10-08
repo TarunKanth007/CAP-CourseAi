@@ -131,11 +131,11 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
     
     try {
       // Use Gemini to analyze responses
-      const analysis = await geminiService.analyzeUserResponses(career.title, responses);
+      const analysis = await geminiService.analyzeUserResponses(career.title, responses, questions);
       
       if (analysis) {
         const result: AssessmentResult = {
-          overallScore: analysis.confidenceScore,
+          overallScore: analysis.readinessScore,
           skillGaps: analysis.skillGaps.map(gap => ({
             skill: gap.skill,
             currentLevel: gap.currentLevel,
@@ -144,10 +144,10 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
             priority: gap.priority
           })),
           recommendations: analysis.nextSteps,
-          readinessLevel: analysis.confidenceScore >= 80 ? 'High' : 
-                         analysis.confidenceScore >= 60 ? 'Medium' : 'Low',
-          strengths: analysis.skillGaps.filter(s => s.gap === 0).map(s => s.skill),
-          improvementAreas: analysis.skillGaps.filter(s => s.gap > 0).map(s => s.skill),
+          readinessLevel: analysis.readinessScore >= 80 ? 'High' : 
+                         analysis.readinessScore >= 60 ? 'Medium' : 'Low',
+          strengths: analysis.strengths,
+          improvementAreas: analysis.weaknesses,
           nextSteps: analysis.nextSteps
         };
         

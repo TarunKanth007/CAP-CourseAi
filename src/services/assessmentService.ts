@@ -27,6 +27,8 @@ export const assessmentService = {
             assessment_type: data.assessmentType,
             responses: data.responses,
             results: data.results,
+            ai_analysis: data.aiAnalysis || null,
+            questions: data.questions || null,
             overall_score: data.results.overallScore,
             readiness_level: data.results.readinessLevel,
             completed_at: new Date().toISOString(),

@@ -123,19 +123,6 @@ const ProgressTracker: React.FC = () => {
     return achievements;
   };
 
-  const generateWeeklyProgress = () => {
-    const weeks = [];
-    for (let i = 7; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - (i * 7));
-      weeks.push({
-        week: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        score: Math.floor(Math.random() * 30) + 60
-      });
-    }
-    return weeks;
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -235,18 +222,31 @@ const ProgressTracker: React.FC = () => {
           <h4 className={`font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Weekly Progress Trend
           </h4>
-          <div className="flex items-end justify-between h-32 space-x-2">
+          <div className="flex items-end justify-between h-32 space-x-1">
             {progressData.weeklyProgress.map((week, index) => (
               <div key={index} className="flex-1 flex flex-col items-center">
                 <div
-                  className="w-full bg-gradient-to-t from-blue-500 to-purple-600 rounded-t-md transition-all duration-500 hover:from-blue-600 hover:to-purple-700"
-                  style={{ height: `${(week.score / 100) * 100}%` }}
+                  className={`w-full rounded-t-md transition-all duration-500 ${
+                    week.score > 0 
+                      ? 'bg-gradient-to-t from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700' 
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                  style={{ 
+                    height: week.score > 0 ? `${Math.max((week.score / 100) * 100, 10)}%` : '5%',
+                    minHeight: '8px'
+                  }}
+                  title={week.score > 0 ? `Score: ${week.score}%` : 'No assessments this week'}
                 ></div>
                 <span className={`text-xs mt-2 ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
                   {week.week}
                 </span>
               </div>
             ))}
+          </div>
+          <div className="mt-4 text-center">
+            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
+              Based on your actual assessment scores over the past 8 weeks
+            </p>
           </div>
         </div>
       </div>
@@ -308,68 +308,94 @@ const ProgressTracker: React.FC = () => {
       <div className={`liquid-card rounded-xl shadow-lg p-6 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
         <h3 className={`text-2xl font-bold mb-6 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
           <Calendar className={`h-6 w-6 mr-2 ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`} />
-          Learning Goals
+          Skill Progress Tracking
         </h3>
 
-        <div className="space-y-4">
-          <div className={`liquid-card border-l-4 border-blue-500 p-4 rounded-lg ${
-            isDarkMode ? 'bg-slate-700' : 'bg-blue-50'
-          }`}>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Complete 10 Assessments
-              </h4>
-              <span className={`text-sm ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
-                {progressData.totalAssessments}/10
-              </span>
-            </div>
-            <div className="liquid-progress w-full rounded-full h-2">
-              <div 
-                className="liquid-progress-fill h-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-600"
-                style={{ width: `${Math.min((progressData.totalAssessments / 10) * 100, 100)}%` }}
-              ></div>
-            </div>
+        {progressData.skillProgress.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {progressData.skillProgress.map((skill, index) => (
+              <div key={index} className={`liquid-card border-l-4 p-4 rounded-lg ${
+                skill.progress >= 80 ? 'border-green-500 bg-green-50 dark:bg-green-900/20' :
+                skill.progress >= 60 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' :
+                'border-red-500 bg-red-50 dark:bg-red-900/20'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {skill.skill}
+                  </h4>
+                  <span className={`text-sm font-medium ${
+                    skill.progress >= 80 ? 'text-green-600' :
+                    skill.progress >= 60 ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {skill.currentLevel}/{skill.targetLevel}
+                  </span>
+                </div>
+                <div className="liquid-progress w-full rounded-full h-2 mb-1">
+                  <div 
+                    className={`liquid-progress-fill h-2 rounded-full ${
+                      skill.progress >= 80 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                      skill.progress >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
+                      'bg-gradient-to-r from-red-500 to-red-600'
+                    }`}
+                    style={{ width: `${Math.max(skill.progress, 5)}%` }}
+                  ></div>
+                </div>
+                <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
+                  {Math.round(skill.progress)}% progress to target level
+                </p>
+              </div>
+            ))}
           </div>
-
-          <div className={`liquid-card border-l-4 border-green-500 p-4 rounded-lg ${
-            isDarkMode ? 'bg-slate-700' : 'bg-green-50'
-          }`}>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                Achieve 85% Average Score
-              </h4>
-              <span className={`text-sm ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                {progressData.averageScore}%/85%
-              </span>
-            </div>
-            <div className="liquid-progress w-full rounded-full h-2">
-              <div 
-                className="liquid-progress-fill h-2 rounded-full bg-gradient-to-r from-green-500 to-green-600"
-                style={{ width: `${Math.min((progressData.averageScore / 85) * 100, 100)}%` }}
-              ></div>
-            </div>
+        ) : (
+          <div className="text-center py-8">
+            <Target className={`h-12 w-12 mx-auto mb-4 ${isDarkMode ? 'text-slate-400' : 'text-gray-400'}`} />
+            <p className={isDarkMode ? 'text-slate-400' : 'text-gray-600'}>
+              Complete assessments to track your skill progress across different areas.
+            </p>
           </div>
+        )}
+      </div>
 
-          <div className={`liquid-card border-l-4 border-purple-500 p-4 rounded-lg ${
-            isDarkMode ? 'bg-slate-700' : 'bg-purple-50'
-          }`}>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                30-Day Learning Streak
-              </h4>
-              <span className={`text-sm ${isDarkMode ? 'text-purple-400' : 'text-purple-600'}`}>
-                {progressData.learningStreak}/30 days
-              </span>
-            </div>
-            <div className="liquid-progress w-full rounded-full h-2">
-              <div 
-                className="liquid-progress-fill h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-600"
-                style={{ width: `${Math.min((progressData.learningStreak / 30) * 100, 100)}%` }}
-              ></div>
-            </div>
+      {/* Recent Assessments */}
+      {progressData.recentAssessments.length > 0 && (
+        <div className={`liquid-card rounded-xl shadow-lg p-6 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
+          <h3 className={`text-2xl font-bold mb-6 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            <BookOpen className={`h-6 w-6 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-600'}`} />
+            Recent Assessment Performance
+          </h3>
+          <div className="space-y-3">
+            {progressData.recentAssessments.map((assessment, index) => (
+              <div key={index} className={`liquid-card border rounded-lg p-4 ${
+                isDarkMode ? 'border-slate-600 bg-slate-700' : 'border-gray-200 bg-gray-50'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {assessment.career_path.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </h4>
+                    <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-600'}`}>
+                      {new Date(assessment.created_at).toLocaleDateString()} • {assessment.assessment_type === 'ai' ? 'AI Assessment' : 'Standard Assessment'}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-lg font-bold ${
+                      assessment.overall_score >= 80 ? 'text-green-600' :
+                      assessment.overall_score >= 60 ? 'text-yellow-600' :
+                      'text-red-600'
+                    }`}>
+                      {assessment.overall_score}%
+                    </div>
+                    <div className={`text-xs ${isDarkMode ? 'text-slate-500' : 'text-gray-500'}`}>
+                      {assessment.readiness_level} Readiness
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

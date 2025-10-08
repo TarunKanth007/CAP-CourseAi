@@ -3,7 +3,7 @@ import { Career, AssessmentResult } from '../types';
 import { learningResources } from '../data/resources';
 import { companyHiringData, marketInsights } from '../data/industryData';
 import MarketInsights from './MarketInsights';
-import { TrendingUp, Target, BookOpen, Clock, Star, ExternalLink, Award, Brain, Lightbulb, Sparkles } from 'lucide-react';
+import { TrendingUp, Target, BookOpen, Clock, Star, ExternalLink, Award, Brain, Lightbulb, Sparkles, CheckCircle, AlertTriangle, Users } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface CareerDetailsProps {
@@ -139,8 +139,71 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
       <div className={`liquid-card rounded-xl shadow-lg p-8 ${isDarkMode ? 'bg-slate-800' : 'bg-white'}`}>
         <h2 className={`text-2xl font-bold mb-6 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
           <BookOpen className={`h-6 w-6 mr-2 ${isDarkMode ? 'text-green-400' : 'text-green-500'}`} />
-          Recommended Learning Resources
+          AI-Recommended Learning Path
         </h2>
+        
+        {/* AI Analysis Summary */}
+        {result.strengths && result.strengths.length > 0 && (
+          <div className={`glass-morphism p-4 rounded-lg mb-6 border ${
+            isDarkMode ? 'border-blue-400/30' : 'border-blue-200'
+          }`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h3 className={`font-semibold mb-2 flex items-center ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Your Strengths
+                </h3>
+                <ul className="space-y-1">
+                  {result.strengths.slice(0, 3).map((strength, index) => (
+                    <li key={index} className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
+                      • {strength}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className={`font-semibold mb-2 flex items-center ${isDarkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  Areas for Improvement
+                </h3>
+                <ul className="space-y-1">
+                  {result.improvementAreas && result.improvementAreas.slice(0, 3).map((area, index) => (
+                    <li key={index} className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
+                      • {area}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Next Steps Section */}
+        {result.nextSteps && result.nextSteps.length > 0 && (
+          <div className={`liquid-card border-l-4 border-blue-500 p-4 rounded-lg mb-6 ${
+            isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50'
+          }`}>
+            <h3 className={`font-semibold mb-3 flex items-center ${isDarkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+              <Target className="h-4 w-4 mr-1" />
+              Immediate Next Steps
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {result.nextSteps.map((step, index) => (
+                <div key={index} className="flex items-start space-x-2">
+                  <span className={`flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${
+                    isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
+                  }`}>
+                    {index + 1}
+                  </span>
+                  <span className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
+                    {step}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {recommendedResources.map((resource) => (
             <div key={resource.id} className={`liquid-card border rounded-lg p-6 hover:shadow-md transition-shadow ${

@@ -55,6 +55,54 @@ export interface AIAnalysisResponse {
   confidenceScore: number;
 }
 
+export interface DetailedAssessmentAnalysis {
+  overallAssessment: string;
+  currentLevel: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+  targetLevel: 'Intermediate' | 'Advanced' | 'Expert' | 'Master';
+  readinessScore: number;
+  strengths: string[];
+  weaknesses: string[];
+  skillGaps: Array<{
+    skill: string;
+    currentLevel: number;
+    targetLevel: number;
+    gap: number;
+    priority: 'high' | 'medium' | 'low';
+    recommendations: string[];
+    estimatedTimeToImprove: string;
+  }>;
+  learningPath: Array<{
+    phase: string;
+    duration: string;
+    skills: string[];
+    resources: Array<{
+      title: string;
+      type: string;
+      provider: string;
+      url: string;
+      priority: 'high' | 'medium' | 'low';
+    }>;
+    milestones: string[];
+  }>;
+  courseRecommendations: Array<{
+    title: string;
+    provider: string;
+    duration: string;
+    difficulty: 'beginner' | 'intermediate' | 'advanced';
+    skills: string[];
+    priority: 'high' | 'medium' | 'low';
+    reasoning: string;
+  }>;
+  nextSteps: string[];
+  timelineToReadiness: string;
+  marketInsights: {
+    demandLevel: string;
+    competitionLevel: string;
+    salaryExpectation: string;
+    jobOpportunities: string[];
+  };
+}
+
 class GeminiService {
   private model = genAI?.getGenerativeModel({ model: 'gemini-pro' });
 
@@ -242,33 +290,115 @@ Respond only with valid JSON.
     return mockQuestions[Math.floor(Math.random() * mockQuestions.length)];
   }
 
-  private getMockAnalysis(careerPath: string, responses: Record<string, any>): AIAnalysisResponse {
+  private getMockDetailedAnalysis(
+    careerPath: string, 
+    responses: Record<string, any>, 
+    questions: AIQuestionResponse[]
+  ): DetailedAssessmentAnalysis {
+    const responseCount = Object.keys(responses).length;
+    const avgResponseQuality = responseCount > 0 ? 3.5 : 2.5; // Mock scoring
+    
     return {
-      overallAssessment: `Based on your responses, you show good potential for ${careerPath}. Focus on strengthening key technical skills.`,
+      overallAssessment: `Based on your ${responseCount} responses, you demonstrate ${avgResponseQuality > 3 ? 'strong' : 'developing'} potential for ${careerPath}. Your answers indicate ${avgResponseQuality > 3 ? 'good foundational knowledge' : 'room for growth in key areas'}.`,
+      currentLevel: avgResponseQuality > 3.5 ? 'Intermediate' : 'Beginner',
+      targetLevel: 'Advanced',
+      readinessScore: Math.round(avgResponseQuality * 20),
+      strengths: [
+        'Demonstrated interest in the field',
+        'Willingness to learn and improve',
+        'Basic understanding of core concepts'
+      ],
+      weaknesses: [
+        'Limited practical experience',
+        'Need to strengthen technical skills',
+        'Require more hands-on practice'
+      ],
       skillGaps: [
         {
-          skill: 'Technical Skills',
+          skill: 'Core Technical Skills',
           currentLevel: 3,
           targetLevel: 4,
           gap: 1,
           priority: 'high',
-          recommendations: ['Take advanced courses', 'Build practical projects']
+          recommendations: ['Complete foundational courses', 'Build practical projects', 'Practice regularly'],
+          estimatedTimeToImprove: '2-3 months'
+        },
+        {
+          skill: 'Industry Knowledge',
+          currentLevel: 2,
+          targetLevel: 4,
+          gap: 2,
+          priority: 'medium',
+          recommendations: ['Read industry publications', 'Follow thought leaders', 'Join professional communities'],
+          estimatedTimeToImprove: '3-4 months'
         }
       ],
       learningPath: [
         {
-          phase: 'Foundation',
-          duration: '2-3 months',
-          skills: ['Core concepts', 'Basic tools'],
-          resources: ['Online courses', 'Documentation']
+          phase: 'Foundation Phase',
+          duration: '4-6 weeks',
+          skills: ['Basic concepts', 'Fundamental tools'],
+          resources: [
+            {
+              title: `Introduction to ${careerPath}`,
+              type: 'course',
+              provider: 'Online Learning Platform',
+              url: '#',
+              priority: 'high'
+            }
+          ],
+          milestones: ['Complete basic concepts', 'Understand terminology', 'Set up development environment']
+        },
+        {
+          phase: 'Development Phase',
+          duration: '8-10 weeks',
+          skills: ['Practical application', 'Project work'],
+          resources: [
+            {
+              title: `Practical ${careerPath} Projects`,
+              type: 'tutorial',
+              provider: 'Tutorial Platform',
+              url: '#',
+              priority: 'high'
+            }
+          ],
+          milestones: ['Complete first project', 'Build portfolio', 'Apply learned concepts']
+        }
+      ],
+      courseRecommendations: [
+        {
+          title: `Complete ${careerPath} Bootcamp`,
+          provider: 'Online Education Platform',
+          duration: '12 weeks',
+          difficulty: 'intermediate',
+          skills: ['Core skills', 'Practical application'],
+          priority: 'high',
+          reasoning: 'Comprehensive coverage of essential skills with hands-on projects'
+        },
+        {
+          title: `Advanced ${careerPath} Specialization`,
+          provider: 'University Platform',
+          duration: '6 months',
+          difficulty: 'advanced',
+          skills: ['Advanced concepts', 'Specialization'],
+          priority: 'medium',
+          reasoning: 'Deep dive into advanced topics for career progression'
         }
       ],
       nextSteps: [
-        'Complete foundational learning',
-        'Build a portfolio project',
-        'Practice with real scenarios'
+        'Enroll in recommended foundation course',
+        'Set up daily learning schedule (1-2 hours)',
+        'Join relevant online communities',
+        'Start building your first project',
+        'Create a learning progress tracker'
       ],
-      confidenceScore: 78
+      timelineToReadiness: responseCount > 3 ? '6-9 months' : '9-12 months',
+      marketInsights: {
+        demandLevel: 'High',
+        competitionLevel: 'Medium',
+        salaryExpectation: '$50,000 - $80,000',
+        jobOpportunities: ['Entry-level positions', 'Internship programs', 'Junior roles']
+      }
     };
   }
 }
