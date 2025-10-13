@@ -29,6 +29,8 @@ export const assessmentService = {
             results: data.results,
             ai_analysis: data.aiAnalysis || null,
             questions: data.questions || null,
+            ai_analysis: data.aiAnalysis || null,
+            questions: data.questions || null,
             overall_score: data.results.overallScore,
             readiness_level: data.results.readinessLevel,
             completed_at: new Date().toISOString(),
@@ -43,6 +45,72 @@ export const assessmentService = {
     }
   },
 
+  // Save skill assessments
+  async saveSkillAssessments(userId: string, assessmentId: string, skillGaps: any[]) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, demo: true };
+    }
+
+    try {
+      const skillAssessments = skillGaps.map(gap => ({
+        user_id: userId,
+        assessment_id: assessmentId,
+        skill_name: gap.skill,
+        current_level: gap.currentLevel,
+        target_level: gap.targetLevel,
+        gap_level: gap.gap,
+        priority: gap.priority,
+        confidence_score: gap.confidenceScore || null,
+        improvement_suggestions: gap.recommendations || [],
+        estimated_time_to_improve: gap.estimatedTimeToImprove || null
+      }));
+
+      const { error } = await supabase
+        .from('skill_assessments')
+        .insert(skillAssessments);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Error saving skill assessments:', error);
+      return { success: false, error };
+    }
+  },
+
+  // Save career recommendations
+  async saveCareerRecommendations(userId: string, assessmentId: string, recommendations: any[]) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, demo: true };
+    }
+
+    try {
+      const careerRecs = recommendations.map(rec => ({
+        user_id: userId,
+        assessment_id: assessmentId,
+        career_path: rec.careerPath || '',
+        recommendation_type: rec.type || 'course',
+        title: rec.title,
+        description: rec.description || null,
+        provider: rec.provider || null,
+        url: rec.url || null,
+        priority: rec.priority || 'medium',
+        estimated_duration: rec.duration || null,
+        cost_estimate: rec.cost || null,
+        ai_reasoning: rec.reasoning || null,
+        skills_addressed: rec.skills || []
+      }));
+
+      const { error } = await supabase
+        .from('career_recommendations')
+        .insert(careerRecs);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Error saving career recommendations:', error);
+      return { success: false, error };
+    }
+  },
   // Get user's assessment history
   async getUserAssessments(userId: string) {
     if (!isSupabaseConfigured || !supabase) {
@@ -64,6 +132,112 @@ export const assessmentService = {
     }
   },
 
+  // Get user achievements
+  async getUserAchievements(userId: string) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', userId)
+        .order('unlocked_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching achievements:', error);
+      return { success: false, error };
+    }
+  },
+
+  // Get learning resources
+  async getLearningResources(careerPath?: string, skills?: string[]) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
+    try {
+      let query = supabase
+        .from('learning_resources')
+        .select('*');
+
+      if (careerPath) {
+        query = query.contains('career_paths', [careerPath]);
+      }
+
+      if (skills && skills.length > 0) {
+        query = query.overlaps('skills', skills);
+      }
+
+      const { data, error } = await query
+        .order('rating', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching learning resources:', error);
+      return { success: false, error };
+    }
+  },
+
+  // Get skill assessments for user
+  async getUserSkillAssessments(userId: string, assessmentId?: string) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
+    try {
+      let query = supabase
+        .from('skill_assessments')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (assessmentId) {
+        query = query.eq('assessment_id', assessmentId);
+      }
+
+      const { data, error } = await query
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching skill assessments:', error);
+      return { success: false, error };
+    }
+  },
+
+  // Get career recommendations for user
+  async getUserRecommendations(userId: string, assessmentId?: string) {
+    if (!isSupabaseConfigured || !supabase) {
+      return { success: true, data: [] };
+    }
+
+    try {
+      let query = supabase
+        .from('career_recommendations')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (assessmentId) {
+        query = query.eq('assessment_id', assessmentId);
+      }
+
+      const { data, error } = await query
+        .order('priority', { ascending: true })
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+      return { success: false, error };
+    }
+  },
   // Update user progress
   async updateUserProgress(userId: string, careerPath: string, skillLevels: Record<string, number>) {
     if (!isSupabaseConfigured || !supabase) {

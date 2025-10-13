@@ -45,6 +45,14 @@ const ProgressTracker: React.FC = () => {
       const assessmentsResult = await assessmentService.getUserAssessments(user.id);
       const assessments = assessmentsResult.data || [];
 
+      // Load achievements
+      const achievementsResult = await assessmentService.getUserAchievements(user.id);
+      const achievements = achievementsResult.data || [];
+
+      // Load skill assessments
+      const skillAssessmentsResult = await assessmentService.getUserSkillAssessments(user.id);
+      const skillAssessments = skillAssessmentsResult.data || [];
+
       // Load progress data
       const progressResult = await assessmentService.getUserProgress(user.id);
       const progress = progressResult.data || [];
@@ -55,16 +63,42 @@ const ProgressTracker: React.FC = () => {
         ? Math.round(assessments.reduce((sum, a) => sum + a.overall_score, 0) / assessments.length)
         : 0;
 
-      // Mock data for demonstration
+      // Calculate real progress data
+      const skillsImproved = skillAssessments.filter(sa => sa.current_level >= sa.target_level).length;
+      const totalSkillsTracked = skillAssessments.length;
+      const completedResources = progress.reduce((sum, p) => sum + (p.completed_resources?.length || 0), 0);
+      
+      // Calculate learning streak (days with assessments in last 30 days)
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const recentAssessments = assessments.filter(a => new Date(a.created_at) >= thirtyDaysAgo);
+      const uniqueDays = new Set(recentAssessments.map(a => new Date(a.created_at).toDateString()));
+      const learningStreak = uniqueDays.size;
+
+      // Generate weekly progress from actual assessments
+      const weeklyProgress = generateWeeklyProgressFromData(assessments);
+      
+      // Generate skill progress from skill assessments
+      const skillProgress = generateSkillProgressFromData(skillAssessments);
+
       const mockProgressData: ProgressData = {
         totalAssessments,
         averageScore,
-        skillsImproved: Math.floor(totalAssessments * 2.5),
-        learningStreak: 7, // days
-        completedResources: Math.floor(totalAssessments * 1.8),
-        timeSpent: Math.floor(totalAssessments * 3.2), // hours
-        achievements: generateAchievements(totalAssessments, averageScore),
-        weeklyProgress: generateWeeklyProgress()
+        skillsImproved,
+        learningStreak,
+        completedResources,
+        timeSpent: Math.floor(totalAssessments * 2.5), // Estimated based on assessments
+        achievements: achievements.map(a => ({
+          id: a.achievement_id,
+          title: a.title,
+          description: a.description || '',
+          icon: a.icon || '🏆',
+          unlockedAt: a.unlocked_at || a.created_at || '',
+          category: a.category as 'assessment' | 'learning' | 'streak' | 'skill' || 'assessment'
+        })),
+        weeklyProgress,
+        skillProgress,
+        recentAssessments: assessments.slice(0, 5)
       };
 
       setProgressData(mockProgressData);
@@ -75,6 +109,51 @@ const ProgressTracker: React.FC = () => {
     }
   };
 
+  const generateWeeklyProgressFromData = (assessments: any[]) => {
+    const weeks = [];
+    const now = new Date();
+    
+    for (let i = 7; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - (i * 7));
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      
+      const weekAssessments = assessments.filter(a => {
+        const assessmentDate = new Date(a.created_at);
+        return assessmentDate >= weekStart && assessmentDate <= weekEnd;
+      });
+      
+      const avgScore = weekAssessments.length > 0 
+        ? Math.round(weekAssessments.reduce((sum, a) => sum + a.overall_score, 0) / weekAssessments.length)
+        : 0;
+      
+      weeks.push({
+        week: `W${i === 0 ? 'Now' : i}`,
+        score: avgScore
+      });
+    }
+    
+    return weeks;
+  };
+
+  const generateSkillProgressFromData = (skillAssessments: any[]) => {
+    const skillMap = new Map();
+    
+    skillAssessments.forEach(sa => {
+      const existing = skillMap.get(sa.skill_name);
+      if (!existing || new Date(sa.created_at) > new Date(existing.created_at)) {
+        skillMap.set(sa.skill_name, sa);
+      }
+    });
+    
+    return Array.from(skillMap.values()).map(sa => ({
+      skill: sa.skill_name,
+      currentLevel: sa.current_level || 1,
+      targetLevel: sa.target_level || 5,
+      progress: ((sa.current_level || 1) / (sa.target_level || 5)) * 100
+    }));
+  };
   const generateAchievements = (assessments: number, avgScore: number): Achievement[] => {
     const achievements: Achievement[] = [];
 

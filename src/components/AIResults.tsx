@@ -15,10 +15,49 @@ interface CareerDetailsProps {
 
 export default function AIResults({ career, result, onRestart, onStartAssessment }: CareerDetailsProps) {
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadRecommendations();
+  }, [user]);
+
+  const loadRecommendations = async () => {
+    if (!user) return;
+    
+    try {
+      const recsResult = await assessmentService.getUserRecommendations(user.id);
+      if (recsResult.success && recsResult.data) {
+        setRecommendations(recsResult.data);
+      }
+      
+      // Also load learning resources based on skill gaps
+      const skills = result.skillGaps.map(gap => gap.skill);
+      const resourcesResult = await assessmentService.getLearningResources(career.id, skills);
+      if (resourcesResult.success && resourcesResult.data) {
+        // Merge with existing recommendations
+        const additionalRecs = resourcesResult.data.map(resource => ({
+          title: resource.title,
+          provider: resource.provider,
+          duration: resource.duration,
+          difficulty: resource.difficulty,
+          rating: resource.rating,
+          url: resource.url,
+          skills: resource.skills,
+          type: resource.type
+        }));
+        setRecommendations(prev => [...prev, ...additionalRecs]);
+      }
+    } catch (error) {
+      console.error('Error loading recommendations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const skillGaps = result.skillGaps;
-  const recommendedResources = learningResources.filter(resource =>
-    resource.skills.some(skill => skillGaps.some(gap => gap.skill === skill && gap.gap > 0))
-  ).slice(0, 6);
+  const recommendedResources = recommendations.slice(0, 6);
 
   // Get market insights and company data
   const careerInsights = marketInsights[career.id];
