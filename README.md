@@ -108,5 +108,3 @@ The application features a modern liquid glass morphism design with:
 - Multi-language support
 
 ---
-
-**Project by Dr. A. Abdul Rahman - Batch 70**
