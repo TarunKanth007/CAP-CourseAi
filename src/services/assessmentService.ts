@@ -7,6 +7,8 @@ export interface SaveAssessmentData {
   assessmentType: 'standard' | 'ai';
   responses: Record<string, any>;
   results: AssessmentResult;
+  aiAnalysis?: any;
+  questions?: any[];
 }
 
 export const assessmentService = {
@@ -14,11 +16,11 @@ export const assessmentService = {
   async saveAssessment(data: SaveAssessmentData) {
     if (!isSupabaseConfigured || !supabase) {
       console.warn('Supabase not configured - assessment data not saved');
-      return { success: true, demo: true };
+      return { success: true, demo: true, assessmentId: 'demo-id' };
     }
 
     try {
-      const { error } = await supabase
+      const { data: result, error } = await supabase
         .from('assessments')
         .insert([
           {
@@ -34,11 +36,13 @@ export const assessmentService = {
             overall_score: data.results.overallScore,
             readiness_level: data.results.readinessLevel,
             completed_at: new Date().toISOString(),
+        .select('id')
+        .single();
           },
         ]);
 
       if (error) throw error;
-      return { success: true };
+      return { success: true, assessmentId: result?.id };
     } catch (error) {
       console.error('Error saving assessment:', error);
       return { success: false, error };

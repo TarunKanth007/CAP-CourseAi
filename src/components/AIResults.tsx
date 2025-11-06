@@ -1,5 +1,8 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import { Career, AssessmentResult } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { assessmentService } from '../services/assessmentService';
 import { learningResources } from '../data/resources';
 import { companyHiringData, marketInsights } from '../data/industryData';
 import MarketInsights from './MarketInsights';
@@ -38,6 +41,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
       if (resourcesResult.success && resourcesResult.data) {
         // Merge with existing recommendations
         const additionalRecs = resourcesResult.data.map(resource => ({
+          id: resource.id,
           title: resource.title,
           provider: resource.provider,
           duration: resource.duration,

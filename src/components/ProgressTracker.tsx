@@ -113,7 +113,7 @@ const ProgressTracker: React.FC = () => {
     const weeks = [];
     const now = new Date();
     
-    for (let i = 7; i >= 0; i--) {
+    for (let i = 6; i >= 0; i--) {
       const weekStart = new Date(now);
       weekStart.setDate(now.getDate() - (i * 7));
       const weekEnd = new Date(weekStart);
@@ -129,7 +129,7 @@ const ProgressTracker: React.FC = () => {
         : 0;
       
       weeks.push({
-        week: `W${i === 0 ? 'Now' : i}`,
+        week: i === 0 ? 'This Week' : `${i}w ago`,
         score: avgScore
       });
     }

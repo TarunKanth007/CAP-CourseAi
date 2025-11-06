@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Career, AssessmentResult, SkillGap } from '../types';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
+import { assessmentService } from '../services/assessmentService';
 import { Brain, Loader, CheckCircle, ChevronLeft, Sparkles, MessageSquare } from 'lucide-react';
 import { geminiService, AIQuestionResponse } from '../lib/gemini';
-
 import { isGeminiConfigured } from '../lib/gemini';
 
 interface AIAssessmentProps {
@@ -14,6 +15,7 @@ interface AIAssessmentProps {
 
 const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack }) => {
   const { isDarkMode } = useTheme();
+  const { user } = useAuth();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [questions, setQuestions] = useState<AIQuestionResponse[]>([]);
@@ -134,14 +136,14 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
       const analysis = await geminiService.analyzeUserResponses(career.title, responses);
       
       if (analysis) {
-        // Save assessment with AI analysis
+        // Create assessment data with AI analysis
         const assessmentData = {
           userId: user?.id || '',
           careerPath: career.id,
           assessmentType: 'ai' as const,
           responses,
           results: {
-            overallScore: analysis.overallScore,
+            overallScore: analysis.confidenceScore || 75,
             skillGaps: analysis.skillGaps.map(gap => ({
               skill: gap.skill,
               currentLevel: gap.currentLevel,
@@ -150,10 +152,10 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
               priority: gap.priority
             })),
             recommendations: analysis.nextSteps,
-            readinessLevel: analysis.overallScore >= 80 ? 'High' : 
-                           analysis.overallScore >= 60 ? 'Medium' : 'Low',
-            strengths: analysis.strengths,
-            improvementAreas: analysis.weaknesses,
+            readinessLevel: (analysis.confidenceScore || 75) >= 80 ? 'High' : 
+                           (analysis.confidenceScore || 75) >= 60 ? 'Medium' : 'Low',
+            strengths: ['Demonstrated interest in the field', 'Good learning attitude'],
+            improvementAreas: analysis.skillGaps.map(gap => gap.skill).slice(0, 3),
             nextSteps: analysis.nextSteps
           },
           aiAnalysis: analysis,
@@ -163,15 +165,28 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
         // Save to Supabase
         if (user) {
           const saveResult = await assessmentService.saveAssessment(assessmentData);
-          if (saveResult.success && !saveResult.demo) {
+          if (saveResult.success && saveResult.assessmentId) {
             // Also save skill assessments and recommendations
-            await assessmentService.saveSkillAssessments(user.id, saveResult.assessmentId || '', analysis.skillGaps);
-            await assessmentService.saveCareerRecommendations(user.id, saveResult.assessmentId || '', analysis.courseRecommendations || []);
+            await assessmentService.saveSkillAssessments(user.id, saveResult.assessmentId, analysis.skillGaps);
+            
+            // Create course recommendations from learning path
+            const courseRecs = analysis.learningPath.map(phase => ({
+              title: `${phase.phase} Learning Path`,
+              description: `Focus on ${phase.skills.join(', ')}`,
+              type: 'course',
+              provider: 'AI Recommendation',
+              duration: phase.duration,
+              priority: 'high',
+              skills: phase.skills,
+              reasoning: `Essential for ${career.title} development`
+            }));
+            
+            await assessmentService.saveCareerRecommendations(user.id, saveResult.assessmentId, courseRecs);
           }
         }
 
         const result: AssessmentResult = {
-          overallScore: analysis.overallScore,
+          overallScore: analysis.confidenceScore || 75,
           skillGaps: analysis.skillGaps.map(gap => ({
             skill: gap.skill,
             currentLevel: gap.currentLevel,
@@ -180,10 +195,10 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
             priority: gap.priority
           })),
           recommendations: analysis.nextSteps,
-          readinessLevel: analysis.overallScore >= 80 ? 'High' : 
-                         analysis.overallScore >= 60 ? 'Medium' : 'Low',
-          strengths: analysis.strengths,
-          improvementAreas: analysis.weaknesses,
+          readinessLevel: (analysis.confidenceScore || 75) >= 80 ? 'High' : 
+                         (analysis.confidenceScore || 75) >= 60 ? 'Medium' : 'Low',
+          strengths: ['Demonstrated interest in the field', 'Good learning attitude'],
+          improvementAreas: analysis.skillGaps.map(gap => gap.skill).slice(0, 3),
           nextSteps: analysis.nextSteps
         };
         
@@ -202,7 +217,10 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
           priority: 'medium' as const
         })),
         recommendations: ['Continue learning', 'Build projects', 'Practice regularly'],
-        readinessLevel: 'Medium'
+        readinessLevel: 'Medium',
+        strengths: ['Basic understanding', 'Willingness to learn'],
+        improvementAreas: ['Technical skills', 'Practical experience'],
+        nextSteps: ['Start with foundation courses', 'Build practice projects']
       };
       
       onComplete(fallbackResult, responses);
