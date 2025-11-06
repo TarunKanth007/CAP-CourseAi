@@ -398,6 +398,7 @@ Respond only with valid JSON.
         competitionLevel: 'Medium',
         salaryExpectation: '$50,000 - $80,000',
         jobOpportunities: ['Entry-level positions', 'Internship programs', 'Junior roles']
+      }
       confidenceScore: Math.min(responseCount * 15 + 40, 85)
     };
   }
