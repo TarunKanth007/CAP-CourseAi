@@ -1,6 +1,9 @@
 import React from 'react';
+import { useState } from 'react';
 import { CareerPath, SkillGap, LearningResource } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { assessmentService } from '../services/assessmentService';
 import { learningResources } from '../data/resources';
 import { companyHiringData, marketInsights } from '../data/industryData';
 import MarketInsights from './MarketInsights';

@@ -254,6 +254,131 @@ Respond only with valid JSON.
     }
   }
 
+  private buildLearningPlanPrompt(request: LearningPlanRequest): string {
+    return `
+You are an AI learning plan expert. Create a comprehensive, personalized learning plan for a ${request.career} career path.
+
+User Context:
+- Career: ${request.career}
+- Current Level: ${request.currentLevel}%
+- Skill Gaps: ${JSON.stringify(request.skillGaps, null, 2)}
+- Assessment History: ${request.assessmentHistory.length} previous assessments
+- User Goals: ${request.userGoals.join(', ')}
+- Recent Responses: ${JSON.stringify(request.responses, null, 2)}
+
+Generate a JSON response with this structure:
+{
+  "learningPath": {
+    "totalDuration": "estimated total time",
+    "phases": [
+      {
+        "phase": "phase name",
+        "duration": "time estimate",
+        "skills": ["skill1", "skill2"],
+        "resources": [
+          {
+            "title": "resource title",
+            "type": "course|book|tutorial|certification",
+            "provider": "provider name",
+            "duration": "time estimate",
+            "priority": "high|medium|low"
+          }
+        ],
+        "milestones": ["milestone1", "milestone2"]
+      }
+    ]
+  },
+  "insights": "Detailed AI insights about the user's learning journey, strengths, challenges, and personalized advice for success in their chosen career path."
+}
+
+Make the plan:
+1. Highly personalized based on their current level and gaps
+2. Realistic and achievable with clear timelines
+3. Progressive from foundation to advanced concepts
+4. Include specific, actionable resources
+5. Provide motivational and strategic insights
+
+Respond only with valid JSON.
+    `;
+  }
+
+  private parseLearningPlanResponse(text: string, request: LearningPlanRequest): LearningPlanResponse {
+    try {
+      const parsed = JSON.parse(text);
+      return {
+        learningPath: parsed.learningPath || this.getDefaultLearningPath(request.career),
+        insights: parsed.insights || `Based on your ${request.currentLevel}% score in ${request.career}, you show strong potential. Focus on addressing your skill gaps systematically while building on your existing strengths.`
+      };
+    } catch (error) {
+      console.error('Error parsing learning plan response:', error);
+      return this.getMockLearningPlan(request);
+    }
+  }
+
+  private getMockLearningPlan(request: LearningPlanRequest): LearningPlanResponse {
+    return {
+      learningPath: {
+        totalDuration: '6-9 months',
+        phases: [
+          {
+            phase: 'Foundation Phase',
+            duration: '6-8 weeks',
+            skills: ['Basic concepts', 'Fundamental tools'],
+            resources: [
+              {
+                title: `Introduction to ${request.career}`,
+                type: 'course',
+                provider: 'Online Learning Platform',
+                duration: '4-6 weeks',
+                priority: 'high'
+              }
+            ],
+            milestones: ['Complete basic concepts', 'Set up learning environment']
+          },
+          {
+            phase: 'Development Phase',
+            duration: '8-12 weeks',
+            skills: ['Practical application', 'Project work'],
+            resources: [
+              {
+                title: `Advanced ${request.career} Skills`,
+                type: 'course',
+                provider: 'Professional Platform',
+                duration: '8-10 weeks',
+                priority: 'high'
+              }
+            ],
+            milestones: ['Build first project', 'Master intermediate concepts']
+          }
+        ]
+      },
+      insights: `Based on your assessment for ${request.career}, you demonstrate ${request.currentLevel >= 70 ? 'strong' : 'developing'} potential. Your learning plan is customized to address your specific skill gaps while building on your existing knowledge. Focus on consistent daily practice and hands-on projects to accelerate your progress.`
+    };
+  }
+
+  private getDefaultLearningPath(career: string) {
+    return {
+      totalDuration: '6-9 months',
+      phases: [
+        {
+          phase: 'Foundation Phase',
+          duration: '6-8 weeks',
+          skills: ['Basic concepts', 'Fundamental tools'],
+          resources: [
+            {
+              title: `Introduction to ${career}`,
+              type: 'course',
+              provider: 'Online Learning Platform',
+              duration: '4-6 weeks',
+              priority: 'high'
+            }
+          ],
+          milestones: ['Complete basic concepts', 'Set up learning environment']
+        }
+      ]
+    };
+  }
+
   private getMockQuestion(request: AIQuestionRequest): AIQuestionResponse {
     const mockQuestions = [
       {

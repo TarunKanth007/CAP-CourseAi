@@ -343,8 +343,22 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
         >
           New Assessment
         </button>
-        <button className="liquid-button px-6 py-3 text-white rounded-lg">
-          Download Learning Plan
+        <button 
+          onClick={handleDownloadLearningPlan}
+          disabled={isGeneratingPlan}
+          className="liquid-button px-6 py-3 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          {isGeneratingPlan ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <span>Generating Plan...</span>
+            </>
+          ) : (
+            <>
+              <BookOpen className="h-4 w-4" />
+              <span>Download Learning Plan</span>
+            </>
+          )}
         </button>
       </div>
     </div>
