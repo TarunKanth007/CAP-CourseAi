@@ -31,15 +31,13 @@ export const assessmentService = {
             results: data.results,
             ai_analysis: data.aiAnalysis || null,
             questions: data.questions || null,
-            ai_analysis: data.aiAnalysis || null,
-            questions: data.questions || null,
             overall_score: data.results.overallScore,
             readiness_level: data.results.readinessLevel,
             completed_at: new Date().toISOString(),
+          },
+        ])
         .select('id')
         .single();
-          },
-        ]);
 
       if (error) throw error;
       return { success: true, assessmentId: result?.id };
