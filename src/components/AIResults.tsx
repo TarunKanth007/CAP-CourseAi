@@ -326,8 +326,8 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
         <button
           onClick={onRestart}
           className={`liquid-button px-6 py-3 border rounded-lg ${
-            isDarkMode 
-              ? 'bg-slate-700 border-slate-600 text-slate-300' 
+            isDarkMode
+              ? 'bg-slate-700 border-slate-600 text-slate-300'
               : 'bg-gray-100 border-gray-300 text-gray-700'
           }`}
         >
@@ -335,30 +335,10 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
         </button>
         <button
           onClick={onStartAssessment}
-          className={`liquid-button px-6 py-3 border rounded-lg ${
-            isDarkMode 
-              ? 'bg-slate-700 border-slate-600 text-slate-300' 
-              : 'bg-gray-100 border-gray-300 text-gray-700'
-          }`}
+          className="liquid-button px-6 py-3 text-white rounded-lg flex items-center space-x-2"
         >
-          New Assessment
-        </button>
-        <button 
-          onClick={handleDownloadLearningPlan}
-          disabled={isGeneratingPlan}
-          className="liquid-button px-6 py-3 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-        >
-          {isGeneratingPlan ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              <span>Generating Plan...</span>
-            </>
-          ) : (
-            <>
-              <BookOpen className="h-4 w-4" />
-              <span>Download Learning Plan</span>
-            </>
-          )}
+          <Sparkles className="h-4 w-4" />
+          <span>Start New Assessment</span>
         </button>
       </div>
     </div>

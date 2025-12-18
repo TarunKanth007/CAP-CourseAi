@@ -130,11 +130,11 @@ const AIAssessment: React.FC<AIAssessmentProps> = ({ career, onComplete, onBack 
 
   const completeAssessment = async () => {
     setIsAnalyzing(true);
-    
+
     try {
-      // Use Gemini to analyze responses
-      const analysis = await geminiService.analyzeUserResponses(career.title, responses);
-      
+      // Use Gemini to analyze responses with questions for context
+      const analysis = await geminiService.analyzeUserResponses(career.title, responses, questions);
+
       if (analysis) {
         // Create assessment data with AI analysis
         const assessmentData = {

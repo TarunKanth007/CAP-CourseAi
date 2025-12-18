@@ -103,6 +103,35 @@ export interface DetailedAssessmentAnalysis {
   };
 }
 
+export interface LearningPlanRequest {
+  career: string;
+  currentLevel: number;
+  skillGaps: Array<{ skill: string; gap: number }>;
+  assessmentHistory: any[];
+  userGoals: string[];
+  responses: Record<string, any>;
+}
+
+export interface LearningPlanResponse {
+  learningPath: {
+    totalDuration: string;
+    phases: Array<{
+      phase: string;
+      duration: string;
+      skills: string[];
+      resources: Array<{
+        title: string;
+        type: string;
+        provider: string;
+        duration: string;
+        priority: string;
+      }>;
+      milestones: string[];
+    }>;
+  };
+  insights: string;
+}
+
 class GeminiService {
   private model = genAI?.getGenerativeModel({ model: 'gemini-pro' });
 
@@ -126,8 +155,9 @@ class GeminiService {
   }
 
   async analyzeUserResponses(
-    careerPath: string, 
-    responses: Record<string, any>
+    careerPath: string,
+    responses: Record<string, any>,
+    questions?: AIQuestionResponse[]
   ): Promise<AIAnalysisResponse | null> {
     if (!isGeminiConfigured || !this.model) {
       console.warn('Gemini not configured, returning mock analysis');
@@ -135,11 +165,11 @@ class GeminiService {
     }
 
     try {
-      const prompt = this.buildAnalysisPrompt(careerPath, responses);
+      const prompt = this.buildAnalysisPrompt(careerPath, responses, questions);
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       return this.parseAnalysisResponse(text, careerPath);
     } catch (error) {
       console.error('Error analyzing responses:', error);
@@ -178,16 +208,23 @@ Respond only with valid JSON.
     `;
   }
 
-  private buildAnalysisPrompt(careerPath: string, responses: Record<string, any>): string {
+  private buildAnalysisPrompt(careerPath: string, responses: Record<string, any>, questions?: AIQuestionResponse[]): string {
+    const questionsContext = questions ? `
+Assessment Questions Asked:
+${questions.map((q, i) => `${i + 1}. [${q.skill} - ${q.difficulty}] ${q.question}`).join('\n')}
+` : '';
+
     return `
 You are an AI career counselor analyzing assessment responses for a ${careerPath} position.
+
+${questionsContext}
 
 User Responses:
 ${JSON.stringify(responses, null, 2)}
 
 Provide a comprehensive analysis in JSON format:
 {
-  "overallAssessment": "Overall assessment summary",
+  "overallAssessment": "Overall assessment summary based on their specific responses",
   "skillGaps": [
     {
       "skill": "skill name",
@@ -213,9 +250,9 @@ Provide a comprehensive analysis in JSON format:
 Base your analysis on:
 1. Industry standards for ${careerPath}
 2. Current market demands
-3. User's demonstrated knowledge
+3. User's demonstrated knowledge in their specific responses
 4. Skill progression pathways
-5. Learning efficiency
+5. Learning efficiency based on their answers
 
 Respond only with valid JSON.
     `;
@@ -411,8 +448,54 @@ Respond only with valid JSON.
         reasoning: 'Understanding your problem-solving methodology'
       }
     ];
-    
+
     return mockQuestions[Math.floor(Math.random() * mockQuestions.length)];
+  }
+
+  private getMockAnalysis(careerPath: string, responses: Record<string, any>): AIAnalysisResponse {
+    const responseCount = Object.keys(responses).length;
+    return {
+      overallAssessment: `Based on your responses, you show ${responseCount > 2 ? 'strong' : 'developing'} potential for a ${careerPath} career.`,
+      skillGaps: [
+        {
+          skill: 'Core Technical Skills',
+          currentLevel: 3,
+          targetLevel: 4,
+          gap: 1,
+          priority: 'high',
+          recommendations: ['Complete foundational courses', 'Build practical projects']
+        },
+        {
+          skill: 'Industry Knowledge',
+          currentLevel: 2,
+          targetLevel: 4,
+          gap: 2,
+          priority: 'medium',
+          recommendations: ['Read industry publications', 'Join professional communities']
+        }
+      ],
+      learningPath: [
+        {
+          phase: 'Foundation Phase',
+          duration: '4-6 weeks',
+          skills: ['Basic concepts', 'Fundamental tools'],
+          resources: [`Introduction to ${careerPath}`, 'Online resources']
+        },
+        {
+          phase: 'Development Phase',
+          duration: '8-10 weeks',
+          skills: ['Practical application', 'Project work'],
+          resources: [`Advanced ${careerPath} skills`, 'Project-based learning']
+        }
+      ],
+      nextSteps: [
+        'Enroll in recommended foundation course',
+        'Set up daily learning schedule',
+        'Join relevant communities',
+        'Start building projects'
+      ],
+      confidenceScore: Math.min(responseCount * 15 + 40, 85)
+    };
   }
 
   private getMockDetailedAnalysis(

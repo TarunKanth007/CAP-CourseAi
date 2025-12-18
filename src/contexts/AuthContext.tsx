@@ -28,6 +28,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const { data: { session } } = await client.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
+
+        if (session?.user && isSupabaseConfigured) {
+          await createUserProfile(session.user);
+        }
       } catch (error) {
         console.warn('Failed to get initial session:', error);
         setSession(null);
@@ -47,8 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
       setLoading(false);
 
-      // Create user profile if signing up
-      if (event === 'SIGNED_UP' && session?.user && isSupabaseConfigured) {
+      // Create user profile for any authenticated user
+      if (session?.user && isSupabaseConfigured) {
         await createUserProfile(session.user);
       }
     });
@@ -58,17 +62,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createUserProfile = async (user: User) => {
     if (!isSupabaseConfigured || !supabase) return;
-    
+
     try {
       const { error } = await supabase
         .from('users')
-        .insert([
+        .upsert([
           {
             id: user.id,
             email: user.email!,
             full_name: user.user_metadata?.full_name || null,
           },
-        ]);
+        ], {
+          onConflict: 'id'
+        });
 
       if (error) throw error;
     } catch (error) {
