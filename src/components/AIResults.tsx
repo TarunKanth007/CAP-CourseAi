@@ -60,7 +60,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
     }
   };
 
-  const skillGaps = result.skillGaps;
+  const skillGaps = result.skillGaps || [];
   const recommendedResources = recommendations.slice(0, 6);
 
   // Get market insights and company data
@@ -186,7 +186,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
         </h2>
         
         {/* AI Analysis Summary */}
-        {result.strengths && result.strengths.length > 0 && (
+        {(result.strengths || []).length > 0 && (
           <div className={`glass-morphism p-4 rounded-lg mb-6 border ${
             isDarkMode ? 'border-blue-400/30' : 'border-blue-200'
           }`}>
@@ -197,7 +197,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
                   Your Strengths
                 </h3>
                 <ul className="space-y-1">
-                  {result.strengths.slice(0, 3).map((strength, index) => (
+                  {(result.strengths || []).slice(0, 3).map((strength, index) => (
                     <li key={index} className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
                       • {strength}
                     </li>
@@ -210,7 +210,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
                   Areas for Improvement
                 </h3>
                 <ul className="space-y-1">
-                  {result.improvementAreas && result.improvementAreas.slice(0, 3).map((area, index) => (
+                  {(result.improvementAreas || []).slice(0, 3).map((area, index) => (
                     <li key={index} className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-700'}`}>
                       • {area}
                     </li>
@@ -222,7 +222,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
         )}
 
         {/* Next Steps Section */}
-        {result.nextSteps && result.nextSteps.length > 0 && (
+        {(result.nextSteps || []).length > 0 && (
           <div className={`liquid-card border-l-4 border-blue-500 p-4 rounded-lg mb-6 ${
             isDarkMode ? 'bg-blue-900/20' : 'bg-blue-50'
           }`}>
@@ -231,7 +231,7 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
               Immediate Next Steps
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {result.nextSteps.map((step, index) => (
+              {(result.nextSteps || []).map((step, index) => (
                 <div key={index} className="flex items-start space-x-2">
                   <span className={`flex-shrink-0 w-5 h-5 rounded-full text-xs flex items-center justify-center font-bold ${
                     isDarkMode ? 'bg-blue-600 text-white' : 'bg-blue-500 text-white'
@@ -254,17 +254,17 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
             }`}>
               <div className="flex items-start justify-between mb-3">
                 <h3 className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {resource.title}
+                  {resource.title || 'Untitled Resource'}
                 </h3>
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
                   <span className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
-                    {resource.rating}
+                    {resource.rating || 'N/A'}
                   </span>
                 </div>
               </div>
               <p className={`text-sm mb-4 ${isDarkMode ? 'text-slate-300' : 'text-gray-600'}`}>
-                by {resource.provider}
+                by {resource.provider || 'Unknown'}
               </p>
               <div className="flex items-center justify-between mb-4">
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -273,25 +273,25 @@ export default function AIResults({ career, result, onRestart, onStartAssessment
                   resource.type === 'tutorial' ? 'bg-purple-100 text-purple-800' :
                   'bg-orange-100 text-orange-800'
                 }`}>
-                  {resource.type}
+                  {resource.type || 'Resource'}
                 </span>
                 <span className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>
-                  {resource.duration}
+                  {resource.duration || 'Self-paced'}
                 </span>
               </div>
               <div className="flex flex-wrap gap-1 mb-4">
-                {resource.skills.slice(0, 3).map((skill, index) => (
+                {(resource.skills || []).slice(0, 3).map((skill, index) => (
                   <span key={index} className={`px-2 py-1 text-xs rounded ${
                     isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-gray-100 text-gray-700'
                   }`}>
                     {skill}
                   </span>
                 ))}
-                {resource.skills.length > 3 && (
+                {(resource.skills || []).length > 3 && (
                   <span className={`px-2 py-1 text-xs rounded ${
                     isDarkMode ? 'bg-slate-600 text-slate-300' : 'bg-gray-100 text-gray-700'
                   }`}>
-                    +{resource.skills.length - 3} more
+                    +{(resource.skills || []).length - 3} more
                   </span>
                 )}
               </div>
